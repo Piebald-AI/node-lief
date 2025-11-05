@@ -7,7 +7,7 @@
   "scripts": {
     "install": "echo 'Skipping automatic build - use npm run build to build from source'",
     "build": "npm run build:lief && node-gyp rebuild",
-    "build:lief": "bash scripts/build-lief.sh",
+    "build:lief": "node scripts/build-lief.js",
     "clean": "rm -rf build",
     "prebuildify": "prebuildify --napi --strip --target 18.17.0",
     "typecheck": "tsc --noEmit",
@@ -39,5 +39,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Piebald-AI/node-lief"
-  }
+  },
+  "packageManager": "pnpm@9.12.2+sha512.22721b3a11f81661ae1ec68ce1a7b879425a1ca5b991c975b074ac220b187ce56c708fe5db69f4c962c989452eee76c82877f4ee80f474cebd61ee13461b6228"
 }

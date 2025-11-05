@@ -25,18 +25,21 @@
         "LIEF/api/c/include",
         "lief-build/api/c"
       ],
-      "libraries": [
-        "<(module_root_dir)/lief-build/libLIEF.a"
-      ],
       "cflags!": [ "-fno-exceptions", "-fno-rtti" ],
       "cflags_cc!": [ "-fno-exceptions", "-fno-rtti" ],
       "cflags_cc": [ "-std=c++17", "-frtti" ],
       "defines": [ "NAPI_DISABLE_CPP_EXCEPTIONS" ],
       "conditions": [
         ["OS=='linux'", {
+          "libraries": [
+            "<(module_root_dir)/lief-build/libLIEF.a"
+          ],
           "cflags_cc": [ "-std=c++17", "-fPIC", "-frtti" ]
         }],
         ["OS=='mac'", {
+          "libraries": [
+            "<(module_root_dir)/lief-build/libLIEF.a"
+          ],
           "xcode_settings": {
             "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
             "CLANG_CXX_LIBRARY": "libc++",

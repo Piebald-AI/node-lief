@@ -10,6 +10,7 @@ LIEF_SRC="LIEF"
 if [ -n "$GITHUB_ACTIONS" ] || [ -d "/usr/workspace" ]; then
   echo "Running in CI environment, configuring git and initializing submodules..."
   git config --global --add safe.directory /usr/workspace
+  git config --global --add safe.directory /usr/workspace/LIEF
   git submodule update --init --recursive
 
   # Install CMake on Linux if needed

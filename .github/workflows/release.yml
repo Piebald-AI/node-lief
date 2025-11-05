@@ -69,17 +69,14 @@ jobs:
         if: ${{ !matrix.use-docker }}
         run: pnpm install --frozen-lockfile
 
-      - name: Cache LIEF build
+      - name: Install sccache
         if: ${{ !matrix.use-docker }}
-        uses: actions/cache@v4
-        with:
-          path: lief-build
-          key: lief-v1-${{ matrix.platform }}-${{ hashFiles('.gitmodules', 'scripts/build-lief.sh') }}
-          restore-keys: |
-            lief-v1-${{ matrix.platform }}-
+        uses: mozilla-actions/sccache-action@v0.0.9
 
       - name: Build LIEF
         if: ${{ !matrix.use-docker }}
+        env:
+          SCCACHE_GHA_ENABLED: "true"
         run: pnpm build:lief
 
       - name: Prebuildify
@@ -87,24 +84,20 @@ jobs:
         run: pnpm prebuildify
 
       # Alpine Linux build via Docker
-      - name: Cache LIEF build (Alpine)
-        if: matrix.use-docker && matrix.platform == 'linux-x64-musl'
-        uses: actions/cache@v4
-        with:
-          path: lief-build
-          key: lief-v1-${{ matrix.platform }}-${{ hashFiles('.gitmodules', 'scripts/build-lief.sh') }}
-          restore-keys: |
-            lief-v1-${{ matrix.platform }}-
-
       - name: Build for Alpine Linux (musl)
         if: matrix.use-docker && matrix.platform == 'linux-x64-musl'
+        env:
+          SCCACHE_GHA_ENABLED: "true"
         run: |
           docker run --rm -v "$PWD":/workspace -w /workspace \
+            -e SCCACHE_GHA_ENABLED="true" \
+            -e ACTIONS_CACHE_URL="${ACTIONS_CACHE_URL}" \
+            -e ACTIONS_RUNTIME_TOKEN="${ACTIONS_RUNTIME_TOKEN}" \
             alpine:latest \
             sh -c '
               apk add --no-cache \
                 nodejs npm python3 make g++ git cmake bash curl \
-                samurai linux-headers
+                samurai linux-headers sccache
 
               # Configure git for submodules
               git config --global --add safe.directory /workspace
@@ -120,9 +113,9 @@ jobs:
               pnpm prebuildify
             '
 
-      - name: Fix permissions for cache (musl)
+      - name: Fix permissions (musl)
         if: matrix.use-docker && matrix.platform == 'linux-x64-musl'
-        run: sudo chown -R $(id -u):$(id -g) lief-build prebuilds
+        run: sudo chown -R $(id -u):$(id -g) prebuilds
 
       - name: Upload prebuilds
         uses: actions/upload-artifact@v4

@@ -37,6 +37,17 @@ const cmakeArgs = [
   '-DCMAKE_POSITION_INDEPENDENT_CODE=ON',
 ];
 
+// Configure sccache if available in PATH
+// This works both in CI (with SCCACHE_GHA_ENABLED) and locally if sccache is installed
+try {
+  execSync('sccache --version', { stdio: 'ignore' });
+  cmakeArgs.push('-DCMAKE_C_COMPILER_LAUNCHER=sccache');
+  cmakeArgs.push('-DCMAKE_CXX_COMPILER_LAUNCHER=sccache');
+  console.log('sccache detected, enabling compiler caching');
+} catch (e) {
+  // sccache not available, continue without it
+}
+
 // Add macOS-specific deployment target
 if (process.platform === 'darwin') {
   cmakeArgs.push('-DCMAKE_OSX_DEPLOYMENT_TARGET=13.0');

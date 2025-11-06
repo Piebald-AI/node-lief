@@ -1,6 +1,6 @@
 {
   "name": "node-lief",
-  "version": "0.1.0-pre.2",
+  "version": "0.1.0-pre.3",
   "description": "Node.js bindings for LIEF - Library to Instrument Executable Formats",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

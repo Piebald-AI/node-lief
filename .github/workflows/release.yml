@@ -89,7 +89,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@main
 
       - name: Export GHA cache variables
         uses: actions/github-script@v7

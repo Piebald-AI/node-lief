@@ -1,9 +1,21 @@
 {
   "name": "node-lief",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Node.js bindings for LIEF - Library to Instrument Executable Formats",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/index.d.mts",
+        "default": "./lib/index.mjs"
+      },
+      "require": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      }
+    }
+  },
   "scripts": {
     "install": "echo 'Skipping automatic build - use `pnpm build` to build from source.'",
     "build": "pnpm build:lief && node-gyp rebuild",

@@ -1,7 +1,8 @@
 /*
  * Binary Implementation Base
  *
- * Provides shared implementations for all Binary format wrappers
+ * Provides shared implementations for ELF and PE Binary format wrappers.
+ * Note: MachO uses its own MachOBinary class with separate implementations.
  */
 
 #include "binary_impl.h"
@@ -11,54 +12,26 @@
 namespace node_lief {
 
 Napi::Value BinaryImpl::GetFormatImpl(Napi::Env env) {
-  if (!binary_) {
-    return env.Null();
+  // This is only called by ELF and PE binaries (MachO has its own GetFormat)
+  if (binary_->format() == LIEF::Binary::FORMATS::ELF) {
+    return Napi::String::New(env, "ELF");
   }
-
-  std::string format_str;
-  switch (binary_->format()) {
-    case LIEF::Binary::FORMATS::ELF:
-      format_str = "ELF";
-      break;
-    case LIEF::Binary::FORMATS::PE:
-      format_str = "PE";
-      break;
-    case LIEF::Binary::FORMATS::MACHO:
-      format_str = "MachO";
-      break;
-    default:
-      format_str = "UNKNOWN";
-  }
-
-  return Napi::String::New(env, format_str);
+  return Napi::String::New(env, "PE");
 }
 
 Napi::Value BinaryImpl::GetEntrypointImpl(Napi::Env env) {
-  if (!binary_) {
-    return env.Null();
-  }
   return Napi::BigInt::New(env, static_cast<uint64_t>(binary_->entrypoint()));
 }
 
 Napi::Value BinaryImpl::GetIsPieImpl(Napi::Env env) {
-  if (!binary_) {
-    return env.Null();
-  }
   return Napi::Boolean::New(env, binary_->is_pie());
 }
 
 Napi::Value BinaryImpl::GetHasNxImpl(Napi::Env env) {
-  if (!binary_) {
-    return env.Null();
-  }
   return Napi::Boolean::New(env, binary_->has_nx());
 }
 
 Napi::Value BinaryImpl::GetHeaderImpl(Napi::Env env) {
-  if (!binary_) {
-    return env.Null();
-  }
-
   auto header = binary_->header();
 
   Napi::Object header_obj = Napi::Object::New(env);
@@ -71,10 +44,6 @@ Napi::Value BinaryImpl::GetHeaderImpl(Napi::Env env) {
 }
 
 Napi::Value BinaryImpl::GetSectionsImpl(Napi::Env env) {
-  if (!binary_) {
-    return env.Null();
-  }
-
   Napi::Array sections_array = Napi::Array::New(env);
   uint32_t idx = 0;
 
@@ -86,10 +55,6 @@ Napi::Value BinaryImpl::GetSectionsImpl(Napi::Env env) {
 }
 
 Napi::Value BinaryImpl::GetSymbolsImpl(Napi::Env env) {
-  if (!binary_) {
-    return env.Null();
-  }
-
   Napi::Array symbols_array = Napi::Array::New(env);
   auto symbols = binary_->symbols();
 
@@ -107,10 +72,6 @@ Napi::Value BinaryImpl::GetSymbolsImpl(Napi::Env env) {
 }
 
 Napi::Value BinaryImpl::GetRelocationsImpl(Napi::Env env) {
-  if (!binary_) {
-    return env.Null();
-  }
-
   Napi::Array relocations_array = Napi::Array::New(env);
   auto relocations = binary_->relocations();
 
@@ -133,7 +94,7 @@ Napi::Value BinaryImpl::GetSegmentsImpl(Napi::Env env) {
 }
 
 Napi::Value BinaryImpl::GetSymbolImpl(Napi::Env env, const Napi::CallbackInfo& info) {
-  if (!binary_ || info.Length() < 1 || !info[0].IsString()) {
+  if (info.Length() < 1 || !info[0].IsString()) {
     return env.Null();
   }
 
@@ -153,7 +114,7 @@ Napi::Value BinaryImpl::GetSymbolImpl(Napi::Env env, const Napi::CallbackInfo& i
 }
 
 Napi::Value BinaryImpl::PatchAddressImpl(Napi::Env env, const Napi::CallbackInfo& info) {
-  if (!binary_ || info.Length() < 2) {
+  if (info.Length() < 2) {
     Napi::TypeError::New(env, "patchAddress requires address and patch data")
         .ThrowAsJavaScriptException();
     return env.Null();
@@ -196,7 +157,7 @@ Napi::Value BinaryImpl::PatchAddressImpl(Napi::Env env, const Napi::CallbackInfo
 }
 
 Napi::Value BinaryImpl::WriteImpl(Napi::Env env, const Napi::CallbackInfo& info) {
-  if (!binary_ || info.Length() < 1 || !info[0].IsString()) {
+  if (info.Length() < 1 || !info[0].IsString()) {
     Napi::TypeError::New(env, "write() requires an output file path")
         .ThrowAsJavaScriptException();
     return env.Undefined();
@@ -206,49 +167,19 @@ Napi::Value BinaryImpl::WriteImpl(Napi::Env env, const Napi::CallbackInfo& info)
 
   try {
     // Use format-specific builders to write the binary
-    switch (binary_->format()) {
-      case LIEF::Binary::FORMATS::ELF: {
-        auto* elf_bin = dynamic_cast<LIEF::ELF::Binary*>(binary_);
-        if (elf_bin) {
-          LIEF::ELF::Builder builder(*elf_bin);
-          builder.build();
-          builder.write(output_path);
-        } else {
-          Napi::Error::New(env, "Failed to cast to ELF::Binary")
-              .ThrowAsJavaScriptException();
-          return env.Undefined();
-        }
-        break;
-      }
-      case LIEF::Binary::FORMATS::PE: {
-        auto* pe_bin = dynamic_cast<LIEF::PE::Binary*>(binary_);
-        if (pe_bin) {
-          LIEF::PE::Builder::config_t config;
-          LIEF::PE::Builder builder(*pe_bin, config);
-          builder.build();
-          builder.write(output_path);
-        } else {
-          Napi::Error::New(env, "Failed to cast to PE::Binary")
-              .ThrowAsJavaScriptException();
-          return env.Undefined();
-        }
-        break;
-      }
-      case LIEF::Binary::FORMATS::MACHO: {
-        auto* macho_bin = dynamic_cast<LIEF::MachO::Binary*>(binary_);
-        if (macho_bin) {
-          LIEF::MachO::Builder::write(*macho_bin, output_path);
-        } else {
-          Napi::Error::New(env, "Failed to cast to MachO::Binary")
-              .ThrowAsJavaScriptException();
-          return env.Undefined();
-        }
-        break;
-      }
-      default:
-        Napi::Error::New(env, "Unsupported binary format for writing")
-            .ThrowAsJavaScriptException();
-        return env.Undefined();
+    // Note: MachO binaries use MachOBinary::Write() directly, not this method
+    if (binary_->format() == LIEF::Binary::FORMATS::ELF) {
+      auto* elf_bin = dynamic_cast<LIEF::ELF::Binary*>(binary_);
+      LIEF::ELF::Builder builder(*elf_bin);
+      builder.build();
+      builder.write(output_path);
+    } else {
+      // PE format
+      auto* pe_bin = dynamic_cast<LIEF::PE::Binary*>(binary_);
+      LIEF::PE::Builder::config_t config;
+      LIEF::PE::Builder builder(*pe_bin, config);
+      builder.build();
+      builder.write(output_path);
     }
     return env.Undefined();
   } catch (const std::exception& e) {

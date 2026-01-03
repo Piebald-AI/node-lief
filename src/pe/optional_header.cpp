@@ -64,179 +64,119 @@ OptionalHeader::OptionalHeader(const Napi::CallbackInfo& info)
 
 Napi::Value OptionalHeader::GetMagic(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-
-  // Return PE_TYPE as string: "PE32" or "PE32_PLUS"
-  switch (header_->magic()) {
-    case LIEF::PE::PE_TYPE::PE32:
-      return Napi::String::New(env, "PE32");
-    case LIEF::PE::PE_TYPE::PE32_PLUS:
-      return Napi::String::New(env, "PE32_PLUS");
-    default:
-      return Napi::String::New(env, "UNKNOWN");
+  // PE_TYPE enum only has PE32 and PE32_PLUS values
+  if (header_->magic() == LIEF::PE::PE_TYPE::PE32) {
+    return Napi::String::New(env, "PE32");
   }
+  return Napi::String::New(env, "PE32_PLUS");
 }
 
 Napi::Value OptionalHeader::GetMajorLinkerVersion(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->major_linker_version());
+  return Napi::Number::New(info.Env(), header_->major_linker_version());
 }
 
 Napi::Value OptionalHeader::GetMinorLinkerVersion(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->minor_linker_version());
+  return Napi::Number::New(info.Env(), header_->minor_linker_version());
 }
 
 Napi::Value OptionalHeader::GetSizeOfCode(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->sizeof_code());
+  return Napi::Number::New(info.Env(), header_->sizeof_code());
 }
 
 Napi::Value OptionalHeader::GetSizeOfInitializedData(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->sizeof_initialized_data());
+  return Napi::Number::New(info.Env(), header_->sizeof_initialized_data());
 }
 
 Napi::Value OptionalHeader::GetSizeOfUninitializedData(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->sizeof_uninitialized_data());
+  return Napi::Number::New(info.Env(), header_->sizeof_uninitialized_data());
 }
 
 Napi::Value OptionalHeader::GetAddressOfEntrypoint(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->addressof_entrypoint());
+  return Napi::Number::New(info.Env(), header_->addressof_entrypoint());
 }
 
 Napi::Value OptionalHeader::GetBaseOfCode(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->baseof_code());
+  return Napi::Number::New(info.Env(), header_->baseof_code());
 }
 
 Napi::Value OptionalHeader::GetBaseOfData(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->baseof_data());
+  return Napi::Number::New(info.Env(), header_->baseof_data());
 }
 
 Napi::Value OptionalHeader::GetImagebase(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::BigInt::New(env, header_->imagebase());
+  return Napi::BigInt::New(info.Env(), header_->imagebase());
 }
 
 Napi::Value OptionalHeader::GetSectionAlignment(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->section_alignment());
+  return Napi::Number::New(info.Env(), header_->section_alignment());
 }
 
 Napi::Value OptionalHeader::GetFileAlignment(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->file_alignment());
+  return Napi::Number::New(info.Env(), header_->file_alignment());
 }
 
 Napi::Value OptionalHeader::GetMajorOperatingSystemVersion(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->major_operating_system_version());
+  return Napi::Number::New(info.Env(), header_->major_operating_system_version());
 }
 
 Napi::Value OptionalHeader::GetMinorOperatingSystemVersion(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->minor_operating_system_version());
+  return Napi::Number::New(info.Env(), header_->minor_operating_system_version());
 }
 
 Napi::Value OptionalHeader::GetMajorImageVersion(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->major_image_version());
+  return Napi::Number::New(info.Env(), header_->major_image_version());
 }
 
 Napi::Value OptionalHeader::GetMinorImageVersion(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->minor_image_version());
+  return Napi::Number::New(info.Env(), header_->minor_image_version());
 }
 
 Napi::Value OptionalHeader::GetMajorSubsystemVersion(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->major_subsystem_version());
+  return Napi::Number::New(info.Env(), header_->major_subsystem_version());
 }
 
 Napi::Value OptionalHeader::GetMinorSubsystemVersion(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->minor_subsystem_version());
+  return Napi::Number::New(info.Env(), header_->minor_subsystem_version());
 }
 
 Napi::Value OptionalHeader::GetWin32VersionValue(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->win32_version_value());
+  return Napi::Number::New(info.Env(), header_->win32_version_value());
 }
 
 Napi::Value OptionalHeader::GetSizeOfImage(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->sizeof_image());
+  return Napi::Number::New(info.Env(), header_->sizeof_image());
 }
 
 Napi::Value OptionalHeader::GetSizeOfHeaders(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->sizeof_headers());
+  return Napi::Number::New(info.Env(), header_->sizeof_headers());
 }
 
 Napi::Value OptionalHeader::GetChecksum(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->checksum());
+  return Napi::Number::New(info.Env(), header_->checksum());
 }
 
 Napi::Value OptionalHeader::GetSubsystem(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, static_cast<uint32_t>(header_->subsystem()));
+  return Napi::Number::New(info.Env(), static_cast<uint32_t>(header_->subsystem()));
 }
 
 Napi::Value OptionalHeader::GetDllCharacteristics(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::Number::New(env, header_->dll_characteristics());
+  return Napi::Number::New(info.Env(), header_->dll_characteristics());
 }
 
 Napi::Value OptionalHeader::GetSizeOfStackReserve(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::BigInt::New(env, header_->sizeof_stack_reserve());
+  return Napi::BigInt::New(info.Env(), header_->sizeof_stack_reserve());
 }
 
 Napi::Value OptionalHeader::GetSizeOfStackCommit(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::BigInt::New(env, header_->sizeof_stack_commit());
+  return Napi::BigInt::New(info.Env(), header_->sizeof_stack_commit());
 }
 
 Napi::Value OptionalHeader::GetSizeOfHeapReserve(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::BigInt::New(env, header_->sizeof_heap_reserve());
+  return Napi::BigInt::New(info.Env(), header_->sizeof_heap_reserve());
 }
 
 Napi::Value OptionalHeader::GetSizeOfHeapCommit(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!header_) return env.Undefined();
-  return Napi::BigInt::New(env, header_->sizeof_heap_commit());
+  return Napi::BigInt::New(info.Env(), header_->sizeof_heap_commit());
 }
 
 } // namespace node_lief

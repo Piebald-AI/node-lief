@@ -11,7 +11,6 @@
         "src/abstract/binary.cpp",
         "src/abstract/section.cpp",
         "src/abstract/segment.cpp",
-        "src/abstract/symbol.cpp",
         "src/elf/binary.cpp",
         "src/pe/binary.cpp",
         "src/pe/section.cpp",

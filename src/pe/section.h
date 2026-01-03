@@ -16,9 +16,6 @@ class PESection : public Napi::ObjectWrap<PESection> {
   // Factory method to create from LIEF PE section
   static Napi::Object NewInstance(Napi::Env env, LIEF::PE::Section* section);
 
-  // Get underlying section
-  LIEF::PE::Section* GetSection() const { return section_; }
-
   // Constructor (must be public for ObjectWrap)
   explicit PESection(const Napi::CallbackInfo& info);
 

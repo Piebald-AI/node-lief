@@ -3,7 +3,6 @@
  */
 
 #include "section.h"
-#include <LIEF/logging.hpp>
 
 namespace node_lief {
 
@@ -23,7 +22,6 @@ Napi::Object Section::Init(Napi::Env env, Napi::Object exports) {
   section_constructor = new Napi::FunctionReference();
   *section_constructor = Napi::Persistent(constructor);
 
-  // Return the constructor itself
   return constructor;
 }
 
@@ -31,10 +29,6 @@ Section::Section(const Napi::CallbackInfo& info)
     : Napi::ObjectWrap<Section>(info), section_(nullptr) {}
 
 Napi::Object Section::NewInstance(Napi::Env env, LIEF::Section* section) {
-  if (!section_constructor) {
-    Napi::Error::New(env, "Section constructor not initialized").ThrowAsJavaScriptException();
-    return Napi::Object::New(env);
-  }
   Napi::Object obj = section_constructor->New({});
   Section* unwrapped = Napi::ObjectWrap<Section>::Unwrap(obj);
   unwrapped->section_ = section;
@@ -42,53 +36,38 @@ Napi::Object Section::NewInstance(Napi::Env env, LIEF::Section* section) {
 }
 
 Napi::Value Section::GetName(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!section_) return env.Null();
-  return Napi::String::New(env, section_->name());
+  return Napi::String::New(info.Env(), section_->name());
 }
 
 Napi::Value Section::GetVirtualAddress(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!section_) return env.Null();
-  return Napi::BigInt::New(env, section_->virtual_address());
+  return Napi::BigInt::New(info.Env(), section_->virtual_address());
 }
 
 Napi::Value Section::GetSize(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!section_) return env.Null();
-  return Napi::BigInt::New(env, section_->size());
+  return Napi::BigInt::New(info.Env(), section_->size());
 }
 
 void Section::SetSize(const Napi::CallbackInfo& info, const Napi::Value& value) {
-  if (!section_ || !value.IsBigInt()) return;
+  if (!value.IsBigInt()) return;
   bool lossless = false;
   uint64_t new_size = value.As<Napi::BigInt>().Uint64Value(&lossless);
   section_->size(new_size);
 }
 
 Napi::Value Section::GetFileOffset(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!section_) return env.Null();
-  return Napi::BigInt::New(env, section_->offset());
+  return Napi::BigInt::New(info.Env(), section_->offset());
 }
 
 Napi::Value Section::GetContent(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  if (!section_) return env.Null();
-
   auto content = section_->content();
   if (content.empty()) {
     return Napi::Buffer<uint8_t>::New(env, 0);
   }
-
-  // Use Buffer::Copy to efficiently copy binary data
-  // This is much more efficient than creating an array with millions of Number objects
   return Napi::Buffer<uint8_t>::Copy(env, content.data(), content.size());
 }
 
 void Section::SetContent(const Napi::CallbackInfo& info, const Napi::Value& value) {
-  if (!section_) return;
-
   std::vector<uint8_t> new_content;
 
   if (value.IsArray()) {
@@ -111,9 +90,7 @@ void Section::SetContent(const Napi::CallbackInfo& info, const Napi::Value& valu
 }
 
 Napi::Value Section::GetOffset(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!section_) return env.Null();
-  return Napi::BigInt::New(env, section_->offset());
+  return Napi::BigInt::New(info.Env(), section_->offset());
 }
 
 } // namespace node_lief

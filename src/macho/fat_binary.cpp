@@ -6,7 +6,6 @@
 
 #include "fat_binary.h"
 #include "binary.h"
-#include <LIEF/logging.hpp>
 
 namespace node_lief {
 
@@ -27,17 +26,9 @@ Napi::Object MachOFatBinary::Init(Napi::Env env, Napi::Object exports) {
 }
 
 MachOFatBinary::MachOFatBinary(const Napi::CallbackInfo& info)
-    : Napi::ObjectWrap<MachOFatBinary>(info), fat_binary_(nullptr) {
-  // This constructor should not be called directly from JavaScript
-  // FatBinary instances are created via NewInstance factory
-}
+    : Napi::ObjectWrap<MachOFatBinary>(info), fat_binary_(nullptr) {}
 
 Napi::Object MachOFatBinary::NewInstance(Napi::Env env, std::unique_ptr<LIEF::MachO::FatBinary> fat) {
-  if (!fat_binary_constructor) {
-    Napi::Error::New(env, "FatBinary constructor not initialized").ThrowAsJavaScriptException();
-    return Napi::Object::New(env);
-  }
-
   Napi::Object obj = fat_binary_constructor->New({});
   MachOFatBinary* wrapper = Napi::ObjectWrap<MachOFatBinary>::Unwrap(obj);
   wrapper->fat_binary_ = std::move(fat);
@@ -45,19 +36,13 @@ Napi::Object MachOFatBinary::NewInstance(Napi::Env env, std::unique_ptr<LIEF::Ma
 }
 
 Napi::Value MachOFatBinary::Size(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-
-  if (!fat_binary_) {
-    return Napi::Number::New(env, 0);
-  }
-
-  return Napi::Number::New(env, fat_binary_->size());
+  return Napi::Number::New(info.Env(), fat_binary_->size());
 }
 
 Napi::Value MachOFatBinary::At(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
-  if (!fat_binary_ || info.Length() < 1 || !info[0].IsNumber()) {
+  if (info.Length() < 1 || !info[0].IsNumber()) {
     return env.Null();
   }
 
@@ -68,21 +53,14 @@ Napi::Value MachOFatBinary::At(const Napi::CallbackInfo& info) {
     return env.Null();
   }
 
-  // Get the binary at the index (returns a pointer, not ownership)
   auto* binary_ptr = fat_binary_->at(index);
-  if (!binary_ptr) {
-    return env.Null();
-  }
-
-  // Create a Binary wrapper - note: we need to handle the lifetime carefully
-  // The FatBinary owns the actual Binary, so we pass a non-owning pointer
-  return MachOBinary::NewInstance(env, binary_ptr, false);
+  return MachOBinary::NewInstanceNonOwning(env, binary_ptr);
 }
 
 Napi::Value MachOFatBinary::Take(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
-  if (!fat_binary_ || info.Length() < 1 || !info[0].IsNumber()) {
+  if (info.Length() < 1 || !info[0].IsNumber()) {
     return env.Null();
   }
 
@@ -93,13 +71,7 @@ Napi::Value MachOFatBinary::Take(const Napi::CallbackInfo& info) {
     return env.Null();
   }
 
-  // Take ownership of the binary at the index
   auto binary = fat_binary_->take(index);
-  if (!binary) {
-    return env.Null();
-  }
-
-  // Create a Binary wrapper with ownership transfer
   return MachOBinary::NewInstance(env, std::move(binary));
 }
 

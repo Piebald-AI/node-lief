@@ -22,6 +22,8 @@
     "build:lief": "node scripts/build-lief.js",
     "clean": "rm -rf build",
     "prebuildify": "prebuildify --napi --strip",
+    "test": "node --test test/**/*.test.js",
+    "coverage": "./scripts/coverage.sh",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"lib/**/*.{js,ts,d.ts}\"",
     "format:check": "prettier --check \"lib/**/*.{js,ts,d.ts}\""

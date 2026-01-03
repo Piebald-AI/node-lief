@@ -42,3 +42,6 @@ yarn-debug.log*
 .nyc_output/
 coverage/
 
+# Coverage profiling data
+*.profraw
+*.profdata

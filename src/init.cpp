@@ -9,7 +9,7 @@
 #include "abstract/binary.h"
 #include "abstract/section.h"
 #include "abstract/segment.h"
-#include "abstract/symbol.h"
+
 #include "elf/binary.h"
 #include "pe/binary.h"
 #include "pe/section.h"
@@ -25,34 +25,27 @@ namespace node_lief {
 extern Napi::Value Parse(const Napi::CallbackInfo& info);
 extern Napi::Value MachOParse(const Napi::CallbackInfo& info);
 
+// Logging functions (defined as named functions for proper coverage instrumentation)
+Napi::Value LoggingDisable(const Napi::CallbackInfo& info) {
+  LIEF::logging::disable();
+  return info.Env().Undefined();
+}
+
+Napi::Value LoggingEnable(const Napi::CallbackInfo& info) {
+  LIEF::logging::enable();
+  return info.Env().Undefined();
+}
+
 void InitLogging(Napi::Env env, Napi::Object exports) {
   Napi::Object logging = Napi::Object::New(env);
-
-  // logging.disable()
-  logging.Set("disable", Napi::Function::New(env, [](const Napi::CallbackInfo& info) {
-    LIEF::logging::disable();
-    return info.Env().Undefined();
-  }));
-
-  // logging.enable()
-  logging.Set("enable", Napi::Function::New(env, [](const Napi::CallbackInfo& info) {
-    LIEF::logging::enable();
-    return info.Env().Undefined();
-  }));
-
+  logging.Set("disable", Napi::Function::New(env, LoggingDisable));
+  logging.Set("enable", Napi::Function::New(env, LoggingEnable));
   exports.Set("logging", logging);
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-  // Initialize Abstract API
-  exports.Set("Abstract", Napi::Object::New(env));
-  auto abstract = exports.Get("Abstract").As<Napi::Object>();
-
-  // Abstract classes
-  abstract.Set("Binary", AbstractBinary::Init(env, exports));
-  abstract.Set("Section", Section::Init(env, exports));
-  // abstract.Set("Segment", Segment::Init(env, exports));  // TODO: LIEF doesn't have an abstract Segment class
-  abstract.Set("Symbol", AbstractSymbol::Init(env, exports));
+  // Initialize Abstract API (Section class used by format-specific wrappers)
+  Section::Init(env, exports);
 
   // Format-specific APIs
   exports.Set("ELF", Napi::Object::New(env));

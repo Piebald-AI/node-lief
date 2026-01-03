@@ -16,9 +16,6 @@ class MachOHeader : public Napi::ObjectWrap<MachOHeader> {
   // Factory method to create from LIEF header
   static Napi::Object NewInstance(Napi::Env env, const LIEF::MachO::Header* header);
 
-  // Get underlying header
-  const LIEF::MachO::Header* GetHeader() const { return header_; }
-
   // Constructor (must be public for ObjectWrap)
   explicit MachOHeader(const Napi::CallbackInfo& info);
 

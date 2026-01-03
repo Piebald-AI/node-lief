@@ -1,0 +1,64 @@
+name: Coverage
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.20.0
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang llvm ninja-build bc jq
+
+      - name: Install Node dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build LIEF library
+        run: CC=clang CXX=clang++ pnpm build:lief
+
+      - name: Run coverage
+        run: ./scripts/coverage.sh
+
+      - name: Read coverage summary
+        id: coverage
+        run: |
+          COVERAGE=$(head -1 coverage/coverage-summary.txt)
+          COLOR=$(tail -1 coverage/coverage-summary.txt)
+          echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
+          echo "color=$COLOR" >> $GITHUB_OUTPUT
+          echo "Coverage: ${COVERAGE}% (${COLOR})"
+
+      - name: Download coverage badge
+        run: |
+          mkdir -p badges
+          curl -s "https://img.shields.io/badge/coverage-${{ steps.coverage.outputs.coverage }}%25-${{ steps.coverage.outputs.color }}" > badges/coverage.svg
+
+      - name: Commit badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add badges/coverage.svg
+          git diff --staged --quiet || git commit -m "Update coverage badge [skip ci]"
+          git push

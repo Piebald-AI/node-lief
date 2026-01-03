@@ -25,7 +25,6 @@ Napi::Object Segment::Init(Napi::Env env, Napi::Object exports) {
   segment_constructor = new Napi::FunctionReference();
   *segment_constructor = Napi::Persistent(constructor);
 
-  // Return the constructor itself, not exports
   return constructor;
 }
 
@@ -33,10 +32,6 @@ Segment::Segment(const Napi::CallbackInfo& info)
     : Napi::ObjectWrap<Segment>(info), segment_(nullptr) {}
 
 Napi::Object Segment::NewInstance(Napi::Env env, LIEF::MachO::SegmentCommand* segment) {
-  if (!segment_constructor) {
-    Napi::Error::New(env, "Segment constructor not initialized").ThrowAsJavaScriptException();
-    return Napi::Object::New(env);
-  }
   Napi::Object obj = segment_constructor->New({});
   Segment* unwrapped = Napi::ObjectWrap<Segment>::Unwrap(obj);
   unwrapped->segment_ = segment;
@@ -44,49 +39,33 @@ Napi::Object Segment::NewInstance(Napi::Env env, LIEF::MachO::SegmentCommand* se
 }
 
 Napi::Value Segment::GetName(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!segment_) return env.Null();
-  return Napi::String::New(env, segment_->name());
+  return Napi::String::New(info.Env(), segment_->name());
 }
 
 Napi::Value Segment::GetVirtualAddress(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!segment_) return env.Null();
-  return Napi::BigInt::New(env, segment_->virtual_address());
+  return Napi::BigInt::New(info.Env(), segment_->virtual_address());
 }
 
 Napi::Value Segment::GetVirtualSize(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!segment_) return env.Null();
-  return Napi::BigInt::New(env, segment_->virtual_size());
+  return Napi::BigInt::New(info.Env(), segment_->virtual_size());
 }
 
 Napi::Value Segment::GetFileOffset(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!segment_) return env.Null();
-  return Napi::BigInt::New(env, segment_->file_offset());
+  return Napi::BigInt::New(info.Env(), segment_->file_offset());
 }
 
 Napi::Value Segment::GetFileSize(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!segment_) return env.Null();
-  return Napi::BigInt::New(env, segment_->file_size());
+  return Napi::BigInt::New(info.Env(), segment_->file_size());
 }
 
 Napi::Value Segment::GetSections(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  if (!segment_) return env.Null();
-
   Napi::Array sections_array = Napi::Array::New(env);
 
-  try {
-    auto sections = segment_->sections();
-    uint32_t idx = 0;
-    for (auto& sec : sections) {
-      sections_array[idx++] = Section::NewInstance(env, &sec);
-    }
-  } catch (...) {
-    // Some segment types don't have sections
+  auto sections = segment_->sections();
+  uint32_t idx = 0;
+  for (auto& sec : sections) {
+    sections_array[idx++] = Section::NewInstance(env, &sec);
   }
 
   return sections_array;
@@ -94,19 +73,16 @@ Napi::Value Segment::GetSections(const Napi::CallbackInfo& info) {
 
 Napi::Value Segment::GetSection(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  if (!segment_ || info.Length() < 1 || !info[0].IsString()) {
+
+  if (info.Length() < 1 || !info[0].IsString()) {
     return env.Null();
   }
 
   std::string name = info[0].As<Napi::String>();
+  auto* section = segment_->get_section(name);
 
-  try {
-    auto* section = segment_->get_section(name);
-    if (section) {
-      return Section::NewInstance(env, section);
-    }
-  } catch (...) {
-    // Section not found
+  if (section) {
+    return Section::NewInstance(env, section);
   }
 
   return env.Null();

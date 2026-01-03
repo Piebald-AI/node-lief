@@ -16,7 +16,7 @@ class MachOBinary : public Napi::ObjectWrap<MachOBinary> {
 
   // Factory methods to create from LIEF binary
   static Napi::Object NewInstance(Napi::Env env, std::unique_ptr<LIEF::MachO::Binary> binary);
-  static Napi::Object NewInstance(Napi::Env env, LIEF::MachO::Binary* binary, bool owns);
+  static Napi::Object NewInstanceNonOwning(Napi::Env env, LIEF::MachO::Binary* binary);
 
   // Constructor (must be public for ObjectWrap)
   explicit MachOBinary(const Napi::CallbackInfo& info);

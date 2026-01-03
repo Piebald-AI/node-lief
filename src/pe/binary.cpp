@@ -31,7 +31,7 @@ Napi::Object PEBinary::Init(Napi::Env env, Napi::Object exports) {
     InstanceMethod<&PEBinary::GetSymbol>("getSymbol"),
     InstanceMethod<&PEBinary::PatchAddress>("patchAddress"),
     InstanceMethod<&PEBinary::Write>("write"),
-    // PE-specific methods (camelCase)
+    // PE-specific methods
     InstanceMethod<&PEBinary::GetSection>("getSection"),
   });
 
@@ -43,10 +43,6 @@ Napi::Object PEBinary::Init(Napi::Env env, Napi::Object exports) {
 }
 
 Napi::Value PEBinary::NewInstance(Napi::Env env, std::unique_ptr<LIEF::PE::Binary> binary) {
-  if (!pe_binary_constructor) {
-    Napi::Error::New(env, "PEBinary constructor not initialized").ThrowAsJavaScriptException();
-    return env.Null();
-  }
   Napi::Object obj = pe_binary_constructor->New({});
   PEBinary* wrapper = PEBinary::Unwrap(obj);
   wrapper->pe_binary_ = std::move(binary);
@@ -55,39 +51,10 @@ Napi::Value PEBinary::NewInstance(Napi::Env env, std::unique_ptr<LIEF::PE::Binar
 }
 
 PEBinary::PEBinary(const Napi::CallbackInfo& info)
-    : Napi::ObjectWrap<PEBinary>(info), BinaryImpl() {
-  Napi::Env env = info.Env();
-
-  // Allow construction with no arguments for NewInstance pattern
-  if (info.Length() == 0) {
-    return;
-  }
-
-  if (info.Length() < 1 || !info[0].IsString()) {
-    Napi::TypeError::New(env, "PEBinary constructor requires a string file path").ThrowAsJavaScriptException();
-    return;
-  }
-
-  std::string filename = info[0].As<Napi::String>();
-
-  // Parse the binary file
-  auto parsed = LIEF::PE::Parser::parse(filename);
-  if (!parsed) {
-    Napi::Error::New(env, "Failed to parse PE binary file").ThrowAsJavaScriptException();
-    return;
-  }
-
-  pe_binary_ = std::move(parsed);
-  binary_ = pe_binary_.get();
-}
+    : Napi::ObjectWrap<PEBinary>(info), BinaryImpl() {}
 
 Napi::Value PEBinary::GetSections(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-
-  if (!pe_binary_) {
-    return env.Null();
-  }
-
   Napi::Array sections_array = Napi::Array::New(env);
   uint32_t idx = 0;
 
@@ -101,7 +68,7 @@ Napi::Value PEBinary::GetSections(const Napi::CallbackInfo& info) {
 Napi::Value PEBinary::GetSection(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
-  if (!pe_binary_ || info.Length() < 1 || !info[0].IsString()) {
+  if (info.Length() < 1 || !info[0].IsString()) {
     return env.Null();
   }
 
@@ -116,15 +83,7 @@ Napi::Value PEBinary::GetSection(const Napi::CallbackInfo& info) {
 }
 
 Napi::Value PEBinary::GetOptionalHeader(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-
-  if (!pe_binary_) {
-    return env.Null();
-  }
-
-  return OptionalHeader::NewInstance(env, &pe_binary_->optional_header());
+  return OptionalHeader::NewInstance(info.Env(), &pe_binary_->optional_header());
 }
-
-// All abstract method implementations are now in BinaryImpl and forwarded via inline methods in the header
 
 } // namespace node_lief

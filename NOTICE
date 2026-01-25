@@ -1,0 +1,8 @@
+node-lief
+Copyright 2025-2026 Piebald LLC
+
+This product includes LIEF (Library to Instrument Executable Formats)
+Copyright 2017 - 2026 R. Thomas
+Copyright 2017 - 2026 Quarkslab
+Licensed under Apache License 2.0
+https://github.com/lief-project/LIEF

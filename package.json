@@ -1,7 +1,23 @@
 {
   "name": "node-lief",
   "version": "1.0.0",
-  "description": "Node.js bindings for LIEF - Library to Instrument Executable Formats",
+  "description": "Node.js bindings for LIEF, a library to parse and manipulate ELF, PE, and Mach-O executables.",
+  "author": "Piebald LLC <support@piebald.ai>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Piebald-AI/node-lief"
+  },
+  "keywords": [
+    "elf",
+    "pe",
+    "macho",
+    "binary",
+    "parsing",
+    "executable",
+    "dwarf",
+    "pdb"
+  ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "exports": {
@@ -37,21 +53,5 @@
     "prebuildify": "^6.0.1",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3"
-  },
-  "keywords": [
-    "elf",
-    "pe",
-    "macho",
-    "binary",
-    "parsing",
-    "executable",
-    "dwarf",
-    "pdb"
-  ],
-  "author": "",
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Piebald-AI/node-lief"
   }
 }

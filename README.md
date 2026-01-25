@@ -112,3 +112,7 @@ LIEF.logging.enable();
 | Linux | x64, arm64 |
 | macOS 13+ | x64, arm64 |
 | Windows | x64, arm64 |
+
+## License
+
+[Apache-2.0](LICENSE) © 2025-2026 Piebald LLC

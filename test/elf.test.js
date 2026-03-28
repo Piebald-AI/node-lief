@@ -343,6 +343,104 @@ describe('ELF.Binary', () => {
       loadSegment.alignment = newAlignment;
       assert.strictEqual(loadSegment.alignment, newAlignment, 'alignment should be updated');
     });
+
+    it('should allow setting fileOffset', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const loadSegment = binary.getSegment('LOAD');
+
+      if (!loadSegment) return t.skip('No LOAD segment');
+
+      const newOffset = 0x3000n;
+      loadSegment.fileOffset = newOffset;
+      assert.strictEqual(loadSegment.fileOffset, newOffset, 'fileOffset should be updated');
+    });
+
+    it('should allow setting fileSize', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const loadSegment = binary.getSegment('LOAD');
+
+      if (!loadSegment) return t.skip('No LOAD segment');
+
+      const newSize = 0x4000n;
+      loadSegment.fileSize = newSize;
+      assert.strictEqual(loadSegment.fileSize, newSize, 'fileSize should be updated');
+    });
+
+    it('should allow setting physicalAddress', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const loadSegment = binary.getSegment('LOAD');
+
+      if (!loadSegment) return t.skip('No LOAD segment');
+
+      const newAddr = 0x600000n;
+      loadSegment.physicalAddress = newAddr;
+      assert.strictEqual(loadSegment.physicalAddress, newAddr, 'physicalAddress should be updated');
+    });
+
+    it('should allow setting content with Buffer', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const loadSegment = binary.getSegment('LOAD');
+
+      if (!loadSegment) return t.skip('No LOAD segment');
+
+      const originalContent = loadSegment.content;
+      const newContent = Buffer.alloc(originalContent.length, 0x90); // NOP sled, same size
+
+      loadSegment.content = newContent;
+      const updated = loadSegment.content;
+      assert.ok(Buffer.isBuffer(updated), 'content should be a Buffer after setting');
+      assert.strictEqual(updated[0], 0x90, 'first byte should be updated');
+      assert.strictEqual(updated[1], 0x90, 'second byte should be updated');
+    });
+
+    it('should allow setting content with array', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const loadSegment = binary.getSegment('LOAD');
+
+      if (!loadSegment) return t.skip('No LOAD segment');
+
+      const originalContent = loadSegment.content;
+      // Create array of same length as original content
+      const newContent = new Array(originalContent.length).fill(0xCC); // INT3
+
+      loadSegment.content = newContent;
+      const updated = loadSegment.content;
+      assert.ok(Buffer.isBuffer(updated), 'content should be a Buffer after setting');
+      assert.strictEqual(updated[0], 0xCC, 'first byte should be updated');
+      assert.strictEqual(updated[1], 0xCC, 'second byte should be updated');
+    });
+
+    it('should return empty Buffer for segment with no content', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const segments = binary.segments();
+
+      // Find a segment with no file content (e.g. GNU_STACK typically has no content)
+      const emptySegment = segments.find(s => s.type === 'GNU_STACK');
+
+      if (!emptySegment) return t.skip('No GNU_STACK segment');
+
+      const content = emptySegment.content;
+      assert.ok(Buffer.isBuffer(content), 'content should be a Buffer');
+      assert.strictEqual(content.length, 0, 'GNU_STACK segment should have empty content');
+    });
   });
 
   describe('Abstract Binary properties on ELF', () => {

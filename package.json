@@ -1,6 +1,6 @@
 {
   "name": "node-lief",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Node.js bindings for LIEF, a library to parse and manipulate ELF, PE, and Mach-O executables.",
   "author": "Piebald LLC <support@piebald.ai>",
   "license": "Apache-2.0",

@@ -19,6 +19,7 @@
  */
 
 #include "binary.h"
+#include "segment.h"
 #include "../abstract/section.h"
 
 namespace node_lief {
@@ -47,6 +48,7 @@ Napi::Object ELFBinary::Init(Napi::Env env, Napi::Object exports) {
     InstanceMethod<&ELFBinary::Write>("write"),
     // ELF-specific methods
     InstanceMethod<&ELFBinary::GetSection>("getSection"),
+    InstanceMethod<&ELFBinary::GetSegment>("getSegment"),
   });
 
   elf_binary_constructor = new Napi::FunctionReference();
@@ -88,6 +90,36 @@ void ELFBinary::SetOverlay(const Napi::CallbackInfo& info, const Napi::Value& va
   auto buffer = value.As<Napi::Buffer<uint8_t>>();
   std::vector<uint8_t> new_overlay(buffer.Data(), buffer.Data() + buffer.Length());
   elf_binary_->overlay(new_overlay);
+}
+
+Napi::Value ELFBinary::GetSegments(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  Napi::Array segments_array = Napi::Array::New(env);
+  uint32_t idx = 0;
+
+  for (auto& segment : elf_binary_->segments()) {
+    segments_array[idx++] = ELFSegment::NewInstance(env, &segment);
+  }
+
+  return segments_array;
+}
+
+Napi::Value ELFBinary::GetSegment(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+
+  if (info.Length() < 1 || !info[0].IsString()) {
+    return env.Null();
+  }
+
+  std::string type_name = info[0].As<Napi::String>();
+
+  for (auto& segment : elf_binary_->segments()) {
+    if (LIEF::ELF::to_string(segment.type()) == type_name) {
+      return ELFSegment::NewInstance(env, &segment);
+    }
+  }
+
+  return env.Null();
 }
 
 Napi::Value ELFBinary::GetSection(const Napi::CallbackInfo& info) {

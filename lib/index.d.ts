@@ -79,6 +79,37 @@ declare namespace LIEF {
 
   namespace ELF {
     /**
+     * Represents an ELF segment (program header) with full read-write access
+     */
+    class Segment {
+      /** Segment type as a string (e.g. "LOAD", "DYNAMIC", "INTERP", "NOTE", "PHDR", "GNU_STACK", "GNU_RELRO", etc.) */
+      readonly type: string;
+      /** Segment flags bitmask (R=4, W=2, X=1) */
+      flags: number;
+      /** Virtual address of the segment */
+      virtualAddress: bigint;
+      /** In-memory size of the segment */
+      virtualSize: bigint;
+      /** File offset of the segment data */
+      fileOffset: bigint;
+      /** On-disk size of the segment data */
+      fileSize: bigint;
+      /** Physical address of the segment */
+      physicalAddress: bigint;
+      /** Alignment of the segment */
+      alignment: bigint;
+      /**
+       * Segment content as a Buffer.
+       * Getter returns Buffer. Setter accepts Buffer or number[].
+       */
+      get content(): Buffer;
+      set content(value: Buffer | number[]);
+
+      /** Returns sections contained within this segment */
+      sections(): Abstract.Section[];
+    }
+
+    /**
      * ELF-specific binary class
      * Used for Linux/Unix executable manipulation
      */
@@ -94,6 +125,16 @@ declare namespace LIEF {
        * Overlay content as a Buffer.
        */
       overlay: Buffer;
+
+      // Override to return ELF-specific segments
+      segments(): Segment[];
+
+      // ELF-specific methods
+      /**
+       * Get a segment by its type name (e.g. "LOAD", "DYNAMIC")
+       * Returns the first segment matching the given type, or null if not found.
+       */
+      getSegment(type: string): Segment | null;
     }
   }
 

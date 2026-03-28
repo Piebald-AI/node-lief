@@ -174,7 +174,7 @@ describe('ELF.Binary', () => {
   });
 
   describe('ELF segments', () => {
-    it('should return array from segments()', async (t) => {
+    it('should return non-empty array from segments()', async (t) => {
       const fixture = fixtures.x64 || fixtures.arm64;
       if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
 
@@ -182,8 +182,166 @@ describe('ELF.Binary', () => {
       const segments = binary.segments();
 
       assert.ok(Array.isArray(segments), 'segments() should return array');
-      // Note: The abstract segments() returns empty by default
-      // Format-specific segment access is through format-specific APIs
+      assert.ok(segments.length > 0, 'ELF binaries should have at least one segment');
+    });
+
+    it('should have LOAD segments', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const segments = binary.segments();
+      const loadSegments = segments.filter(s => s.type === 'LOAD');
+
+      assert.ok(loadSegments.length > 0, 'ELF executables should have at least one LOAD segment');
+    });
+
+    it('should have correct segment property types', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const segments = binary.segments();
+
+      if (segments.length === 0) return t.skip('No segments');
+
+      const segment = segments[0];
+
+      assert.strictEqual(typeof segment.type, 'string', 'type should be string');
+      assert.strictEqual(typeof segment.flags, 'number', 'flags should be number');
+      assert.strictEqual(typeof segment.virtualAddress, 'bigint', 'virtualAddress should be bigint');
+      assert.strictEqual(typeof segment.virtualSize, 'bigint', 'virtualSize should be bigint');
+      assert.strictEqual(typeof segment.fileOffset, 'bigint', 'fileOffset should be bigint');
+      assert.strictEqual(typeof segment.fileSize, 'bigint', 'fileSize should be bigint');
+      assert.strictEqual(typeof segment.physicalAddress, 'bigint', 'physicalAddress should be bigint');
+      assert.strictEqual(typeof segment.alignment, 'bigint', 'alignment should be bigint');
+    });
+
+    it('should have content as Buffer', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const segments = binary.segments();
+      const loadSegment = segments.find(s => s.type === 'LOAD');
+
+      if (!loadSegment) return t.skip('No LOAD segment');
+
+      const content = loadSegment.content;
+      assert.ok(Buffer.isBuffer(content), 'content should be a Buffer');
+      assert.ok(content.length > 0, 'LOAD segment content should not be empty');
+    });
+
+    it('should return sections within a segment', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const segments = binary.segments();
+      const loadSegment = segments.find(s => s.type === 'LOAD');
+
+      if (!loadSegment) return t.skip('No LOAD segment');
+
+      const sections = loadSegment.sections();
+      assert.ok(Array.isArray(sections), 'sections() should return array');
+      // LOAD segments typically contain sections
+    });
+
+    it('should find segment by type with getSegment()', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const loadSegment = binary.getSegment('LOAD');
+
+      assert.ok(loadSegment, 'Should find a LOAD segment');
+      assert.strictEqual(loadSegment.type, 'LOAD', 'Segment type should be LOAD');
+    });
+
+    it('should return null for non-existent segment type', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const result = binary.getSegment('NONEXISTENT_TYPE');
+
+      assert.strictEqual(result, null, 'Should return null for non-existent segment type');
+    });
+
+    it('should have readable flags with R/W/X bitmask', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const loadSegment = binary.getSegment('LOAD');
+
+      if (!loadSegment) return t.skip('No LOAD segment');
+
+      const flags = loadSegment.flags;
+      // Flags should be a valid bitmask (R=4, W=2, X=1)
+      assert.ok(flags >= 0 && flags <= 7, `Flags should be between 0 and 7, got ${flags}`);
+    });
+
+    it('should allow setting flags', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const loadSegment = binary.getSegment('LOAD');
+
+      if (!loadSegment) return t.skip('No LOAD segment');
+
+      const originalFlags = loadSegment.flags;
+
+      // Set to read-only (R=4)
+      loadSegment.flags = 4;
+      assert.strictEqual(loadSegment.flags, 4, 'Flags should be set to 4 (R)');
+
+      // Restore original flags
+      loadSegment.flags = originalFlags;
+      assert.strictEqual(loadSegment.flags, originalFlags, 'Flags should be restored');
+    });
+
+    it('should allow setting virtualAddress', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const loadSegment = binary.getSegment('LOAD');
+
+      if (!loadSegment) return t.skip('No LOAD segment');
+
+      const newAddr = 0x500000n;
+      loadSegment.virtualAddress = newAddr;
+      assert.strictEqual(loadSegment.virtualAddress, newAddr, 'virtualAddress should be updated');
+    });
+
+    it('should allow setting virtualSize', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const loadSegment = binary.getSegment('LOAD');
+
+      if (!loadSegment) return t.skip('No LOAD segment');
+
+      const newSize = 0x2000n;
+      loadSegment.virtualSize = newSize;
+      assert.strictEqual(loadSegment.virtualSize, newSize, 'virtualSize should be updated');
+    });
+
+    it('should allow setting alignment', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const loadSegment = binary.getSegment('LOAD');
+
+      if (!loadSegment) return t.skip('No LOAD segment');
+
+      const newAlignment = 0x1000n;
+      loadSegment.alignment = newAlignment;
+      assert.strictEqual(loadSegment.alignment, newAlignment, 'alignment should be updated');
     });
   });
 

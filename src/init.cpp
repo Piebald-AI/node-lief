@@ -25,6 +25,7 @@
 #include "abstract/segment.h"
 
 #include "elf/binary.h"
+#include "elf/segment.h"
 #include "pe/binary.h"
 #include "pe/section.h"
 #include "pe/optional_header.h"
@@ -65,6 +66,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set("ELF", Napi::Object::New(env));
   auto elf = exports.Get("ELF").As<Napi::Object>();
   elf.Set("Binary", ELFBinary::Init(env, exports));
+  elf.Set("Segment", ELFSegment::Init(env, exports));
 
   exports.Set("PE", Napi::Object::New(env));
   auto pe = exports.Get("PE").As<Napi::Object>();

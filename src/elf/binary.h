@@ -61,9 +61,8 @@ class ELFBinary : public Napi::ObjectWrap<ELFBinary>, protected BinaryImpl {
   Napi::Value GetRelocations(const Napi::CallbackInfo& info) {
     return GetRelocationsImpl(info.Env());
   }
-  Napi::Value GetSegments(const Napi::CallbackInfo& info) {
-    return GetSegmentsImpl(info.Env());
-  }
+  Napi::Value GetSegments(const Napi::CallbackInfo& info);
+
   Napi::Value GetSymbol(const Napi::CallbackInfo& info) {
     return GetSymbolImpl(info.Env(), info);
   }
@@ -81,6 +80,7 @@ class ELFBinary : public Napi::ObjectWrap<ELFBinary>, protected BinaryImpl {
 
   // ELF-specific methods
   Napi::Value GetSection(const Napi::CallbackInfo& info);
+  Napi::Value GetSegment(const Napi::CallbackInfo& info);
 };
 
 } // namespace node_lief

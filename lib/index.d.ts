@@ -63,12 +63,54 @@ declare namespace LIEF {
   }
 
   namespace ELF {
+    type SegmentType =
+      | 'PT_NULL_'
+      | 'LOAD'
+      | 'DYNAMIC'
+      | 'INTERP'
+      | 'NOTE'
+      | 'SHLIB'
+      | 'PHDR'
+      | 'TLS'
+      | 'GNU_EH_FRAME'
+      | 'GNU_STACK'
+      | 'GNU_PROPERTY'
+      | 'GNU_RELRO'
+      | 'PAX_FLAGS'
+      | 'ARM_ARCHEXT'
+      | 'ARM_EXIDX'
+      | 'AARCH64_MEMTAG_MTE'
+      | 'MIPS_REGINFO'
+      | 'MIPS_RTPROC'
+      | 'MIPS_OPTIONS'
+      | 'MIPS_ABIFLAGS'
+      | 'RISCV_ATTRIBUTES'
+      | 'IA_64_EXT'
+      | 'IA_64_UNWIND'
+      | 'HP_TLS'
+      | 'HP_CORE_NONE'
+      | 'HP_CORE_VERSION'
+      | 'HP_CORE_KERNEL'
+      | 'HP_CORE_COMM'
+      | 'HP_CORE_PROC'
+      | 'HP_CORE_LOADABLE'
+      | 'HP_CORE_STACK'
+      | 'HP_CORE_SHM'
+      | 'HP_CORE_MMF'
+      | 'HP_PARALLEL'
+      | 'HP_FASTBIND'
+      | 'HP_OPT_ANNOT'
+      | 'HP_HSL_ANNOT'
+      | 'HP_STACK'
+      | 'HP_CORE_UTSNAME'
+      | 'UNKNOWN';
+
     /**
      * Represents an ELF segment (program header) with full read-write access.
      */
     class Segment {
-      /** Segment type as a string (e.g. "LOAD", "DYNAMIC", "INTERP", "NOTE", "PHDR", "GNU_STACK", "GNU_RELRO", etc.) */
-      readonly type: string;
+      /** Segment type (e.g. LIEF.ELF.Segment.TYPE.LOAD). */
+      type: SegmentType;
       /** Segment flags bitmask (R=4, W=2, X=1) */
       flags: number;
       /** Virtual address of the segment */
@@ -92,6 +134,48 @@ declare namespace LIEF {
 
       /** Returns sections contained within this segment */
       sections(): Section[];
+
+      static readonly TYPE: {
+        readonly PT_NULL_: 'PT_NULL_';
+        readonly LOAD: 'LOAD';
+        readonly DYNAMIC: 'DYNAMIC';
+        readonly INTERP: 'INTERP';
+        readonly NOTE: 'NOTE';
+        readonly SHLIB: 'SHLIB';
+        readonly PHDR: 'PHDR';
+        readonly TLS: 'TLS';
+        readonly GNU_EH_FRAME: 'GNU_EH_FRAME';
+        readonly GNU_STACK: 'GNU_STACK';
+        readonly GNU_PROPERTY: 'GNU_PROPERTY';
+        readonly GNU_RELRO: 'GNU_RELRO';
+        readonly PAX_FLAGS: 'PAX_FLAGS';
+        readonly ARM_ARCHEXT: 'ARM_ARCHEXT';
+        readonly ARM_EXIDX: 'ARM_EXIDX';
+        readonly AARCH64_MEMTAG_MTE: 'AARCH64_MEMTAG_MTE';
+        readonly MIPS_REGINFO: 'MIPS_REGINFO';
+        readonly MIPS_RTPROC: 'MIPS_RTPROC';
+        readonly MIPS_OPTIONS: 'MIPS_OPTIONS';
+        readonly MIPS_ABIFLAGS: 'MIPS_ABIFLAGS';
+        readonly RISCV_ATTRIBUTES: 'RISCV_ATTRIBUTES';
+        readonly IA_64_EXT: 'IA_64_EXT';
+        readonly IA_64_UNWIND: 'IA_64_UNWIND';
+        readonly HP_TLS: 'HP_TLS';
+        readonly HP_CORE_NONE: 'HP_CORE_NONE';
+        readonly HP_CORE_VERSION: 'HP_CORE_VERSION';
+        readonly HP_CORE_KERNEL: 'HP_CORE_KERNEL';
+        readonly HP_CORE_COMM: 'HP_CORE_COMM';
+        readonly HP_CORE_PROC: 'HP_CORE_PROC';
+        readonly HP_CORE_LOADABLE: 'HP_CORE_LOADABLE';
+        readonly HP_CORE_STACK: 'HP_CORE_STACK';
+        readonly HP_CORE_SHM: 'HP_CORE_SHM';
+        readonly HP_CORE_MMF: 'HP_CORE_MMF';
+        readonly HP_PARALLEL: 'HP_PARALLEL';
+        readonly HP_FASTBIND: 'HP_FASTBIND';
+        readonly HP_OPT_ANNOT: 'HP_OPT_ANNOT';
+        readonly HP_HSL_ANNOT: 'HP_HSL_ANNOT';
+        readonly HP_STACK: 'HP_STACK';
+        readonly HP_CORE_UTSNAME: 'HP_CORE_UTSNAME';
+      };
     }
 
     /**
@@ -129,10 +213,10 @@ declare namespace LIEF {
        */
       getSection(name: string): Section | null;
       /**
-       * Get a segment by its type name (e.g. "LOAD", "DYNAMIC").
+       * Get a segment by its type name (e.g. LIEF.ELF.Segment.TYPE.LOAD).
        * Returns the first segment matching the given type, or null if not found.
        */
-      getSegment(type: string): Segment | null;
+      getSegment(type: SegmentType): Segment | null;
     }
   }
 

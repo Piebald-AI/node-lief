@@ -36,10 +36,10 @@ class ELFSegment : public Napi::ObjectWrap<ELFSegment> {
  private:
   LIEF::ELF::Segment* segment_;
 
-  // Read-only properties
-  Napi::Value GetType(const Napi::CallbackInfo& info);
-
   // Read-write properties
+  Napi::Value GetType(const Napi::CallbackInfo& info);
+  void SetType(const Napi::CallbackInfo& info, const Napi::Value& value);
+
   Napi::Value GetFlags(const Napi::CallbackInfo& info);
   void SetFlags(const Napi::CallbackInfo& info, const Napi::Value& value);
 

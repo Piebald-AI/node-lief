@@ -282,6 +282,52 @@ describe('ELF.Binary', () => {
       assert.ok(flags >= 0 && flags <= 7, `Flags should be between 0 and 7, got ${flags}`);
     });
 
+    it('should expose segment type constants', () => {
+      assert.strictEqual(LIEF.ELF.Segment.TYPE.LOAD, 'LOAD');
+      assert.strictEqual(LIEF.ELF.Segment.TYPE.NOTE, 'NOTE');
+      assert.ok(Object.isFrozen(LIEF.ELF.Segment.TYPE), 'Segment.TYPE should be frozen');
+    });
+
+    it('should allow setting type', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const loadSegment = binary.getSegment(LIEF.ELF.Segment.TYPE.LOAD);
+
+      if (!loadSegment) return t.skip('No LOAD segment');
+
+      const originalType = loadSegment.type;
+
+      loadSegment.type = LIEF.ELF.Segment.TYPE.NOTE;
+      assert.strictEqual(loadSegment.type, LIEF.ELF.Segment.TYPE.NOTE, 'type should be set to NOTE');
+
+      loadSegment.type = originalType;
+      assert.strictEqual(loadSegment.type, originalType, 'type should be restored');
+    });
+
+    it('should silently ignore invalid type assignments', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const loadSegment = binary.getSegment('LOAD');
+
+      if (!loadSegment) return t.skip('No LOAD segment');
+
+      const originalType = loadSegment.type;
+
+      assert.doesNotThrow(() => {
+        loadSegment.type = 'NOT_A_REAL_SEGMENT_TYPE';
+      }, 'Setting type with an unknown string should not throw');
+
+      assert.doesNotThrow(() => {
+        loadSegment.type = 12345;
+      }, 'Setting type with a non-string should not throw');
+
+      assert.strictEqual(loadSegment.type, originalType, 'type should not change with invalid input');
+    });
+
     it('should allow setting flags', async (t) => {
       const fixture = fixtures.x64 || fixtures.arm64;
       if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();

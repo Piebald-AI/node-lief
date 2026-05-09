@@ -20,7 +20,7 @@
 
 #include "binary.h"
 #include "segment.h"
-#include "../abstract/section.h"
+#include "section.h"
 
 namespace node_lief {
 
@@ -49,6 +49,11 @@ Napi::Object ELFBinary::Init(Napi::Env env, Napi::Object exports) {
     // ELF-specific methods
     InstanceMethod<&ELFBinary::GetSection>("getSection"),
     InstanceMethod<&ELFBinary::GetSegment>("getSegment"),
+    InstanceMethod<&ELFBinary::Extend>("extend"),
+    InstanceMethod<&ELFBinary::LastOffsetSection>("lastOffsetSection"),
+    InstanceMethod<&ELFBinary::LastOffsetSegment>("lastOffsetSegment"),
+    InstanceMethod<&ELFBinary::NextVirtualAddress>("nextVirtualAddress"),
+    InstanceMethod<&ELFBinary::PageSize>("pageSize"),
   });
 
   elf_binary_constructor = new Napi::FunctionReference();
@@ -90,6 +95,18 @@ void ELFBinary::SetOverlay(const Napi::CallbackInfo& info, const Napi::Value& va
   auto buffer = value.As<Napi::Buffer<uint8_t>>();
   std::vector<uint8_t> new_overlay(buffer.Data(), buffer.Data() + buffer.Length());
   elf_binary_->overlay(new_overlay);
+}
+
+Napi::Value ELFBinary::GetSections(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  Napi::Array sections_array = Napi::Array::New(env);
+  uint32_t idx = 0;
+
+  for (auto& section : elf_binary_->sections()) {
+    sections_array[idx++] = ELFSection::NewInstance(env, &section);
+  }
+
+  return sections_array;
 }
 
 Napi::Value ELFBinary::GetSegments(const Napi::CallbackInfo& info) {
@@ -136,7 +153,66 @@ Napi::Value ELFBinary::GetSection(const Napi::CallbackInfo& info) {
     return env.Null();
   }
 
-  return Section::NewInstance(env, section);
+  return ELFSection::NewInstance(env, section);
+}
+
+Napi::Value ELFBinary::Extend(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+
+  if (info.Length() < 2) {
+    Napi::TypeError::New(env, "extend requires a segment and size")
+        .ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  if (!ELFSegment::IsInstance(info[0])) {
+    Napi::TypeError::New(env, "First argument must be an ELF Segment object")
+        .ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  Napi::Object segment_obj = info[0].As<Napi::Object>();
+  ELFSegment* segment_wrapper = Napi::ObjectWrap<ELFSegment>::Unwrap(segment_obj);
+
+  uint64_t size = 0;
+  if (info[1].IsBigInt()) {
+    bool lossless = false;
+    size = info[1].As<Napi::BigInt>().Uint64Value(&lossless);
+  } else if (info[1].IsNumber()) {
+    size = static_cast<uint64_t>(info[1].As<Napi::Number>().Uint32Value());
+  } else {
+    Napi::TypeError::New(env, "Size must be a number or BigInt")
+        .ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  try {
+    LIEF::ELF::Segment* extended = elf_binary_->extend(*segment_wrapper->GetSegment(), size);
+    if (!extended) {
+      return env.Null();
+    }
+    return ELFSegment::NewInstance(env, extended);
+  } catch (const std::exception& e) {
+    Napi::Error::New(env, std::string("Failed to extend segment: ") + e.what())
+        .ThrowAsJavaScriptException();
+    return env.Null();
+  }
+}
+
+Napi::Value ELFBinary::LastOffsetSection(const Napi::CallbackInfo& info) {
+  return Napi::BigInt::New(info.Env(), elf_binary_->last_offset_section());
+}
+
+Napi::Value ELFBinary::LastOffsetSegment(const Napi::CallbackInfo& info) {
+  return Napi::BigInt::New(info.Env(), elf_binary_->last_offset_segment());
+}
+
+Napi::Value ELFBinary::NextVirtualAddress(const Napi::CallbackInfo& info) {
+  return Napi::BigInt::New(info.Env(), elf_binary_->next_virtual_address());
+}
+
+Napi::Value ELFBinary::PageSize(const Napi::CallbackInfo& info) {
+  return Napi::BigInt::New(info.Env(), elf_binary_->page_size());
 }
 
 } // namespace node_lief

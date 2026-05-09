@@ -20,28 +20,26 @@
 namespace node_lief {
 
 /**
- * Wrapper for LIEF::ELF::Segment
- * Represents an ELF segment (program header) with full read-write access
+ * Wrapper for LIEF::ELF::Section
+ * Represents an ELF section with ELF-specific read-write access.
  */
-class ELFSegment : public Napi::ObjectWrap<ELFSegment> {
+class ELFSection : public Napi::ObjectWrap<ELFSection> {
  public:
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
 
-  // Factory method to create from LIEF ELF segment
-  static Napi::Object NewInstance(Napi::Env env, LIEF::ELF::Segment* segment);
-
-  static bool IsInstance(const Napi::Value& value);
-
-  // Get underlying segment
-  LIEF::ELF::Segment* GetSegment() const { return segment_; }
+  // Factory method to create from LIEF ELF section
+  static Napi::Object NewInstance(Napi::Env env, LIEF::ELF::Section* section);
 
   // Constructor (must be public for ObjectWrap)
-  explicit ELFSegment(const Napi::CallbackInfo& info);
+  explicit ELFSection(const Napi::CallbackInfo& info);
 
  private:
-  LIEF::ELF::Segment* segment_;
+  LIEF::ELF::Section* section_;
 
   // Read-write properties
+  Napi::Value GetName(const Napi::CallbackInfo& info);
+  void SetName(const Napi::CallbackInfo& info, const Napi::Value& value);
+
   Napi::Value GetType(const Napi::CallbackInfo& info);
   void SetType(const Napi::CallbackInfo& info, const Napi::Value& value);
 
@@ -51,17 +49,11 @@ class ELFSegment : public Napi::ObjectWrap<ELFSegment> {
   Napi::Value GetVirtualAddress(const Napi::CallbackInfo& info);
   void SetVirtualAddress(const Napi::CallbackInfo& info, const Napi::Value& value);
 
-  Napi::Value GetVirtualSize(const Napi::CallbackInfo& info);
-  void SetVirtualSize(const Napi::CallbackInfo& info, const Napi::Value& value);
-
   Napi::Value GetFileOffset(const Napi::CallbackInfo& info);
   void SetFileOffset(const Napi::CallbackInfo& info, const Napi::Value& value);
 
-  Napi::Value GetFileSize(const Napi::CallbackInfo& info);
-  void SetFileSize(const Napi::CallbackInfo& info, const Napi::Value& value);
-
-  Napi::Value GetPhysicalAddress(const Napi::CallbackInfo& info);
-  void SetPhysicalAddress(const Napi::CallbackInfo& info, const Napi::Value& value);
+  Napi::Value GetSize(const Napi::CallbackInfo& info);
+  void SetSize(const Napi::CallbackInfo& info, const Napi::Value& value);
 
   Napi::Value GetAlignment(const Napi::CallbackInfo& info);
   void SetAlignment(const Napi::CallbackInfo& info, const Napi::Value& value);
@@ -69,8 +61,7 @@ class ELFSegment : public Napi::ObjectWrap<ELFSegment> {
   Napi::Value GetContent(const Napi::CallbackInfo& info);
   void SetContent(const Napi::CallbackInfo& info, const Napi::Value& value);
 
-  // Methods
-  Napi::Value GetSections(const Napi::CallbackInfo& info);
+  Napi::Value GetOffset(const Napi::CallbackInfo& info);
 };
 
 } // namespace node_lief

@@ -63,6 +63,117 @@ describe('ELF.Binary', () => {
   });
 
   describe('ELF sections', () => {
+    it('should expose ELF.Section class and constants', () => {
+      assert.strictEqual(typeof LIEF.ELF.Section, 'function', 'ELF.Section should be a class');
+      assert.strictEqual(LIEF.ELF.Section.TYPE.PROGBITS, 'PROGBITS');
+      assert.strictEqual(LIEF.ELF.Section.TYPE.NOBITS, 'NOBITS');
+      assert.ok(Object.isFrozen(LIEF.ELF.Section.TYPE), 'Section.TYPE should be frozen');
+    });
+
+    it('should return ELF.Section instances with ELF-specific fields', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const sections = binary.sections();
+
+      if (sections.length === 0) return t.skip('No sections in binary');
+
+      const section = sections[0];
+      assert.ok(section instanceof LIEF.ELF.Section, 'section should be an ELF.Section');
+      assert.strictEqual(typeof section.name, 'string', 'name should be string');
+      assert.strictEqual(typeof section.type, 'string', 'type should be string');
+      assert.strictEqual(typeof section.flags, 'bigint', 'flags should be bigint');
+      assert.strictEqual(typeof section.virtualAddress, 'bigint', 'virtualAddress should be bigint');
+      assert.strictEqual(typeof section.fileOffset, 'bigint', 'fileOffset should be bigint');
+      assert.strictEqual(typeof section.size, 'bigint', 'size should be bigint');
+      assert.strictEqual(typeof section.alignment, 'bigint', 'alignment should be bigint');
+      assert.strictEqual(section.offset, section.fileOffset, 'offset should alias fileOffset');
+      assert.ok(Buffer.isBuffer(section.content), 'content should be a Buffer');
+    });
+
+    it('should allow setting ELF section fields', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const section = binary.sections().find(s => s.name && s.type !== 'SHT_NULL_');
+
+      if (!section) return t.skip('No mutable section in binary');
+
+      const originalName = section.name;
+      const originalType = section.type;
+      const originalFlags = section.flags;
+      const originalVirtualAddress = section.virtualAddress;
+      const originalFileOffset = section.fileOffset;
+      const originalSize = section.size;
+      const originalAlignment = section.alignment;
+
+      section.name = `${originalName}.tmp`;
+      assert.strictEqual(section.name, `${originalName}.tmp`, 'name should update');
+      section.name = originalName;
+
+      section.type = LIEF.ELF.Section.TYPE.NOTE;
+      assert.strictEqual(section.type, LIEF.ELF.Section.TYPE.NOTE, 'type should update');
+      section.type = originalType;
+
+      section.flags = originalFlags | 1n;
+      assert.strictEqual(section.flags, originalFlags | 1n, 'flags should update');
+      section.flags = originalFlags;
+
+      section.virtualAddress = originalVirtualAddress + 0x10n;
+      assert.strictEqual(section.virtualAddress, originalVirtualAddress + 0x10n, 'virtualAddress should update');
+      section.virtualAddress = originalVirtualAddress;
+
+      section.fileOffset = originalFileOffset + 0x10n;
+      assert.strictEqual(section.fileOffset, originalFileOffset + 0x10n, 'fileOffset should update');
+      section.fileOffset = originalFileOffset;
+
+      section.size = originalSize + 1n;
+      assert.strictEqual(section.size, originalSize + 1n, 'size should update');
+      section.size = originalSize;
+
+      section.alignment = originalAlignment === 0n ? 1n : originalAlignment;
+      assert.strictEqual(section.alignment, originalAlignment === 0n ? 1n : originalAlignment, 'alignment should update');
+      section.alignment = originalAlignment;
+    });
+
+    it('should silently ignore invalid ELF section type assignments', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const section = binary.sections().find(s => s.type !== 'SHT_NULL_');
+
+      if (!section) return t.skip('No typed section in binary');
+
+      const originalType = section.type;
+
+      assert.doesNotThrow(() => {
+        section.type = 'NOT_A_REAL_SECTION_TYPE';
+      }, 'Setting type with an unknown string should not throw');
+
+      assert.doesNotThrow(() => {
+        section.type = 12345;
+      }, 'Setting type with a non-string should not throw');
+
+      assert.strictEqual(section.type, originalType, 'type should not change with invalid input');
+    });
+
+    it('should return ELF.Section from getSection()', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const section = binary.getSection('.text') || binary.sections()[0];
+
+      if (!section) return t.skip('No section in binary');
+
+      const retrieved = binary.getSection(section.name);
+      assert.ok(retrieved instanceof LIEF.ELF.Section, 'getSection() should return ELF.Section');
+      assert.strictEqual(retrieved.name, section.name, 'Retrieved section name should match');
+    });
+
     it('should have standard ELF sections', async (t) => {
       const fixture = fixtures.x64 || fixtures.arm64;
       if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
@@ -244,6 +355,9 @@ describe('ELF.Binary', () => {
 
       const sections = loadSegment.sections();
       assert.ok(Array.isArray(sections), 'sections() should return array');
+      if (sections.length > 0) {
+        assert.ok(sections[0] instanceof LIEF.ELF.Section, 'segment sections should be ELF.Section instances');
+      }
       // LOAD segments typically contain sections
     });
 
@@ -486,6 +600,49 @@ describe('ELF.Binary', () => {
       const content = emptySegment.content;
       assert.ok(Buffer.isBuffer(content), 'content should be a Buffer');
       assert.strictEqual(content.length, 0, 'GNU_STACK segment should have empty content');
+    });
+  });
+
+  describe('ELF raw Binary methods', () => {
+    it('should expose offset and page-size helper methods as bigints', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+
+      assert.strictEqual(typeof binary.lastOffsetSection(), 'bigint', 'lastOffsetSection() should return bigint');
+      assert.strictEqual(typeof binary.lastOffsetSegment(), 'bigint', 'lastOffsetSegment() should return bigint');
+      assert.strictEqual(typeof binary.nextVirtualAddress(), 'bigint', 'nextVirtualAddress() should return bigint');
+      assert.strictEqual(typeof binary.pageSize(), 'bigint', 'pageSize() should return bigint');
+    });
+
+    it('should extend an ELF segment and return an ELF.Segment or null', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const segment = binary.getSegment(LIEF.ELF.Segment.TYPE.LOAD);
+
+      if (!segment) return t.skip('No LOAD segment');
+
+      const extended = binary.extend(segment, 0n);
+      assert.ok(
+        extended === null || extended instanceof LIEF.ELF.Segment,
+        'extend() should return ELF.Segment or null'
+      );
+    });
+
+    it('should validate extend() arguments', async (t) => {
+      const fixture = fixtures.x64 || fixtures.arm64;
+      if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
+
+      const binary = LIEF.parse(fixture);
+      const segment = binary.getSegment(LIEF.ELF.Segment.TYPE.LOAD);
+
+      if (!segment) return t.skip('No LOAD segment');
+
+      assert.throws(() => binary.extend({}, 1n), /First argument must be an ELF Segment object/);
+      assert.throws(() => binary.extend(segment, '1'), /Size must be a number or BigInt/);
     });
   });
 

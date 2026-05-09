@@ -133,7 +133,7 @@ declare namespace LIEF {
       set content(value: Buffer | number[]);
 
       /** Returns sections contained within this segment */
-      sections(): Section[];
+      sections(): ELF.Section[];
 
       static readonly TYPE: {
         readonly PT_NULL_: 'PT_NULL_';
@@ -178,6 +178,183 @@ declare namespace LIEF {
       };
     }
 
+    type SectionType =
+      | 'SHT_NULL_'
+      | 'PROGBITS'
+      | 'SYMTAB'
+      | 'STRTAB'
+      | 'RELA'
+      | 'HASH'
+      | 'DYNAMIC'
+      | 'NOTE'
+      | 'NOBITS'
+      | 'REL'
+      | 'SHLIB'
+      | 'DYNSYM'
+      | 'INIT_ARRAY'
+      | 'FINI_ARRAY'
+      | 'PREINIT_ARRAY'
+      | 'GROUP'
+      | 'SYMTAB_SHNDX'
+      | 'RELR'
+      | 'ANDROID_REL'
+      | 'ANDROID_RELA'
+      | 'LLVM_ADDRSIG'
+      | 'ANDROID_RELR'
+      | 'GNU_ATTRIBUTES'
+      | 'GNU_HASH'
+      | 'GNU_VERDEF'
+      | 'GNU_VERNEED'
+      | 'GNU_VERSYM'
+      | 'ARM_EXIDX'
+      | 'ARM_PREEMPTMAP'
+      | 'ARM_ATTRIBUTES'
+      | 'ARM_DEBUGOVERLAY'
+      | 'ARM_OVERLAYSECTION'
+      | 'HEX_ORDERED'
+      | 'X86_64_UNWIND'
+      | 'MIPS_LIBLIST'
+      | 'MIPS_MSYM'
+      | 'MIPS_CONFLICT'
+      | 'MIPS_GPTAB'
+      | 'MIPS_UCODE'
+      | 'MIPS_DEBUG'
+      | 'MIPS_REGINFO'
+      | 'MIPS_PACKAGE'
+      | 'MIPS_PACKSYM'
+      | 'MIPS_RELD'
+      | 'MIPS_IFACE'
+      | 'MIPS_CONTENT'
+      | 'MIPS_OPTIONS'
+      | 'MIPS_SHDR'
+      | 'MIPS_FDESC'
+      | 'MIPS_EXTSYM'
+      | 'MIPS_DENSE'
+      | 'MIPS_PDESC'
+      | 'MIPS_LOCSYM'
+      | 'MIPS_AUXSYM'
+      | 'MIPS_OPTSYM'
+      | 'MIPS_LOCSTR'
+      | 'MIPS_LINE'
+      | 'MIPS_RFDESC'
+      | 'MIPS_DELTASYM'
+      | 'MIPS_DELTAINST'
+      | 'MIPS_DELTACLASS'
+      | 'MIPS_DWARF'
+      | 'MIPS_DELTADECL'
+      | 'MIPS_SYMBOL_LIB'
+      | 'MIPS_EVENTS'
+      | 'MIPS_TRANSLATE'
+      | 'MIPS_PIXIE'
+      | 'MIPS_XLATE'
+      | 'MIPS_XLATE_DEBUG'
+      | 'MIPS_WHIRL'
+      | 'MIPS_EH_REGION'
+      | 'MIPS_XLATE_OLD'
+      | 'MIPS_ABIFLAGS'
+      | 'MIPS_XHASH'
+      | 'RISCV_ATTRIBUTES'
+      | 'UNKNOWN';
+
+    /**
+     * Represents an ELF section with ELF-specific read-write access.
+     */
+    class Section {
+      name: string;
+      type: SectionType;
+      flags: bigint;
+      virtualAddress: bigint;
+      fileOffset: bigint;
+      size: bigint;
+      alignment: bigint;
+      /** Backward-compatible alias for fileOffset. */
+      readonly offset: bigint;
+      /**
+       * Section content as a Buffer.
+       * Getter returns Buffer. Setter accepts Buffer or number[].
+       */
+      get content(): Buffer;
+      set content(value: Buffer | number[]);
+
+      static readonly TYPE: {
+        readonly SHT_NULL_: 'SHT_NULL_';
+        readonly PROGBITS: 'PROGBITS';
+        readonly SYMTAB: 'SYMTAB';
+        readonly STRTAB: 'STRTAB';
+        readonly RELA: 'RELA';
+        readonly HASH: 'HASH';
+        readonly DYNAMIC: 'DYNAMIC';
+        readonly NOTE: 'NOTE';
+        readonly NOBITS: 'NOBITS';
+        readonly REL: 'REL';
+        readonly SHLIB: 'SHLIB';
+        readonly DYNSYM: 'DYNSYM';
+        readonly INIT_ARRAY: 'INIT_ARRAY';
+        readonly FINI_ARRAY: 'FINI_ARRAY';
+        readonly PREINIT_ARRAY: 'PREINIT_ARRAY';
+        readonly GROUP: 'GROUP';
+        readonly SYMTAB_SHNDX: 'SYMTAB_SHNDX';
+        readonly RELR: 'RELR';
+        readonly ANDROID_REL: 'ANDROID_REL';
+        readonly ANDROID_RELA: 'ANDROID_RELA';
+        readonly LLVM_ADDRSIG: 'LLVM_ADDRSIG';
+        readonly ANDROID_RELR: 'ANDROID_RELR';
+        readonly GNU_ATTRIBUTES: 'GNU_ATTRIBUTES';
+        readonly GNU_HASH: 'GNU_HASH';
+        readonly GNU_VERDEF: 'GNU_VERDEF';
+        readonly GNU_VERNEED: 'GNU_VERNEED';
+        readonly GNU_VERSYM: 'GNU_VERSYM';
+        readonly ARM_EXIDX: 'ARM_EXIDX';
+        readonly ARM_PREEMPTMAP: 'ARM_PREEMPTMAP';
+        readonly ARM_ATTRIBUTES: 'ARM_ATTRIBUTES';
+        readonly ARM_DEBUGOVERLAY: 'ARM_DEBUGOVERLAY';
+        readonly ARM_OVERLAYSECTION: 'ARM_OVERLAYSECTION';
+        readonly HEX_ORDERED: 'HEX_ORDERED';
+        readonly X86_64_UNWIND: 'X86_64_UNWIND';
+        readonly MIPS_LIBLIST: 'MIPS_LIBLIST';
+        readonly MIPS_MSYM: 'MIPS_MSYM';
+        readonly MIPS_CONFLICT: 'MIPS_CONFLICT';
+        readonly MIPS_GPTAB: 'MIPS_GPTAB';
+        readonly MIPS_UCODE: 'MIPS_UCODE';
+        readonly MIPS_DEBUG: 'MIPS_DEBUG';
+        readonly MIPS_REGINFO: 'MIPS_REGINFO';
+        readonly MIPS_PACKAGE: 'MIPS_PACKAGE';
+        readonly MIPS_PACKSYM: 'MIPS_PACKSYM';
+        readonly MIPS_RELD: 'MIPS_RELD';
+        readonly MIPS_IFACE: 'MIPS_IFACE';
+        readonly MIPS_CONTENT: 'MIPS_CONTENT';
+        readonly MIPS_OPTIONS: 'MIPS_OPTIONS';
+        readonly MIPS_SHDR: 'MIPS_SHDR';
+        readonly MIPS_FDESC: 'MIPS_FDESC';
+        readonly MIPS_EXTSYM: 'MIPS_EXTSYM';
+        readonly MIPS_DENSE: 'MIPS_DENSE';
+        readonly MIPS_PDESC: 'MIPS_PDESC';
+        readonly MIPS_LOCSYM: 'MIPS_LOCSYM';
+        readonly MIPS_AUXSYM: 'MIPS_AUXSYM';
+        readonly MIPS_OPTSYM: 'MIPS_OPTSYM';
+        readonly MIPS_LOCSTR: 'MIPS_LOCSTR';
+        readonly MIPS_LINE: 'MIPS_LINE';
+        readonly MIPS_RFDESC: 'MIPS_RFDESC';
+        readonly MIPS_DELTASYM: 'MIPS_DELTASYM';
+        readonly MIPS_DELTAINST: 'MIPS_DELTAINST';
+        readonly MIPS_DELTACLASS: 'MIPS_DELTACLASS';
+        readonly MIPS_DWARF: 'MIPS_DWARF';
+        readonly MIPS_DELTADECL: 'MIPS_DELTADECL';
+        readonly MIPS_SYMBOL_LIB: 'MIPS_SYMBOL_LIB';
+        readonly MIPS_EVENTS: 'MIPS_EVENTS';
+        readonly MIPS_TRANSLATE: 'MIPS_TRANSLATE';
+        readonly MIPS_PIXIE: 'MIPS_PIXIE';
+        readonly MIPS_XLATE: 'MIPS_XLATE';
+        readonly MIPS_XLATE_DEBUG: 'MIPS_XLATE_DEBUG';
+        readonly MIPS_WHIRL: 'MIPS_WHIRL';
+        readonly MIPS_EH_REGION: 'MIPS_EH_REGION';
+        readonly MIPS_XLATE_OLD: 'MIPS_XLATE_OLD';
+        readonly MIPS_ABIFLAGS: 'MIPS_ABIFLAGS';
+        readonly MIPS_XHASH: 'MIPS_XHASH';
+        readonly RISCV_ATTRIBUTES: 'RISCV_ATTRIBUTES';
+      };
+    }
+
     /**
      * ELF-specific binary class.
      * Used for Linux/Unix executable manipulation.
@@ -197,7 +374,7 @@ declare namespace LIEF {
       overlay: Buffer;
 
       // Methods inherited from abstract Binary
-      sections(): Section[];
+      sections(): ELF.Section[];
       symbols(): Symbol[];
       relocations(): Relocation[];
       getSymbol(name: string): Symbol | null;
@@ -211,12 +388,17 @@ declare namespace LIEF {
        * @param name - Section name (e.g. ".text", ".data", ".rodata")
        * @returns The section, or null if not found.
        */
-      getSection(name: string): Section | null;
+      getSection(name: string): ELF.Section | null;
       /**
        * Get a segment by its type name (e.g. LIEF.ELF.Segment.TYPE.LOAD).
        * Returns the first segment matching the given type, or null if not found.
        */
       getSegment(type: SegmentType): Segment | null;
+      extend(segment: Segment, size: bigint | number): Segment | null;
+      lastOffsetSection(): bigint;
+      lastOffsetSegment(): bigint;
+      nextVirtualAddress(): bigint;
+      pageSize(): bigint;
     }
   }
 

@@ -19,7 +19,7 @@
  */
 
 #include "segment.h"
-#include "../abstract/section.h"
+#include "section.h"
 #include <LIEF/ELF.hpp>
 #include <string>
 #include <unordered_map>
@@ -57,6 +57,10 @@ Napi::Object ELFSegment::NewInstance(Napi::Env env, LIEF::ELF::Segment* segment)
   ELFSegment* unwrapped = Napi::ObjectWrap<ELFSegment>::Unwrap(obj);
   unwrapped->segment_ = segment;
   return obj;
+}
+
+bool ELFSegment::IsInstance(const Napi::Value& value) {
+  return value.IsObject() && value.As<Napi::Object>().InstanceOf(elf_segment_constructor->Value());
 }
 
 // Read-only properties
@@ -228,7 +232,7 @@ Napi::Value ELFSegment::GetSections(const Napi::CallbackInfo& info) {
   auto sections = segment_->sections();
   uint32_t idx = 0;
   for (auto& sec : sections) {
-    sections_array[idx++] = Section::NewInstance(env, &sec);
+    sections_array[idx++] = ELFSection::NewInstance(env, &sec);
   }
 
   return sections_array;

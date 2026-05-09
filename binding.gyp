@@ -13,6 +13,7 @@
         "src/abstract/segment.cpp",
         "src/elf/binary.cpp",
         "src/elf/segment.cpp",
+        "src/elf/section.cpp",
         "src/pe/binary.cpp",
         "src/pe/section.cpp",
         "src/pe/optional_header.cpp",

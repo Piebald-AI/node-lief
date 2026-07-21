@@ -2,21 +2,26 @@
   "name": "node-lief",
   "version": "1.3.0",
   "description": "Node.js bindings for LIEF, a library to parse and manipulate ELF, PE, and Mach-O executables.",
-  "author": "Piebald LLC <support@piebald.ai>",
+  "keywords": [
+    "binary",
+    "dwarf",
+    "elf",
+    "executable",
+    "macho",
+    "parsing",
+    "pdb",
+    "pe"
+  ],
   "license": "Apache-2.0",
+  "author": "Piebald LLC <support@piebald.ai>",
   "repository": {
     "type": "git",
     "url": "https://github.com/Piebald-AI/node-lief"
   },
-  "keywords": [
-    "elf",
-    "pe",
-    "macho",
-    "binary",
-    "parsing",
-    "executable",
-    "dwarf",
-    "pdb"
+  "files": [
+    "lib/",
+    "prebuilds/",
+    "NOTICE"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -33,7 +38,6 @@
     }
   },
   "scripts": {
-    "install": "echo 'Skipping automatic build - use `pnpm build` to build from source.'",
     "build": "pnpm build:lief && node-gyp rebuild",
     "build:lief": "node scripts/build-lief.js",
     "clean": "rm -rf build",
@@ -44,14 +48,12 @@
     "format": "prettier --write \"lib/**/*.{js,ts,d.ts}\"",
     "format:check": "prettier --check \"lib/**/*.{js,ts,d.ts}\""
   },
-  "dependencies": {
-    "node-addon-api": "^8.0.0",
-    "node-gyp-build": "^4.8.4"
-  },
   "devDependencies": {
-    "node-gyp": "^10.0.0",
+    "node-addon-api": "github:legendecas/node-addon-api#a438147a58e46b68bcf90eed10fd68aadb9d3c9b",
+    "node-gyp": "^13.0.1",
+    "node-gyp-build": "^4.8.4",
     "prebuildify": "^6.0.1",
-    "prettier": "^3.6.2",
-    "typescript": "^5.9.3"
+    "prettier": "^3.9.5",
+    "typescript": "^7.0.2"
   }
 }

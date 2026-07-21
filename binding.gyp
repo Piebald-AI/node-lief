@@ -1,7 +1,7 @@
 {
   "variables": {
     "openssl_fips": ""
-  },	  
+  },
   "targets": [
     {
       "target_name": "node_lief",
@@ -32,14 +32,14 @@
       ],
       "cflags!": [ "-fno-exceptions", "-fno-rtti" ],
       "cflags_cc!": [ "-fno-exceptions", "-fno-rtti" ],
-      "cflags_cc": [ "-std=c++17", "-frtti" ],
+      "cflags_cc": [ "-std=c++20", "-frtti" ],
       "defines": [ "NAPI_DISABLE_CPP_EXCEPTIONS" ],
       "conditions": [
         ["OS=='linux'", {
           "libraries": [
             "<(module_root_dir)/lief-build/libLIEF.a"
           ],
-          "cflags_cc": [ "-std=c++17", "-fPIC", "-frtti" ]
+          "cflags_cc": [ "-std=c++20", "-fPIC", "-frtti" ]
         }],
         ["OS=='mac'", {
           "libraries": [
@@ -50,7 +50,7 @@
             "CLANG_CXX_LIBRARY": "libc++",
             "MACOSX_DEPLOYMENT_TARGET": "13.0",
             "GCC_ENABLE_CPP_RTTI": "YES",
-            "OTHER_CPLUSPLUSFLAGS": [ "-std=c++17", "-frtti" ]
+            "OTHER_CPLUSPLUSFLAGS": [ "-std=c++20", "-frtti" ]
           }
         }],
         ["OS=='win'", {
@@ -61,7 +61,7 @@
             "VCCLCompilerTool": {
               "ExceptionHandling": 1,
               "RuntimeTypeInfo": "true",
-              "AdditionalOptions": [ "/std:c++17" ]
+              "AdditionalOptions": [ "/std:c++20" ]
             }
           }
         }]

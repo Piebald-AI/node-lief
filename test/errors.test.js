@@ -20,16 +20,26 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert');
 const { join } = require('node:path');
-const { getElfFixtures, getPeFixtures, getMachoFixtures, skipIfNoFixture, FIXTURES_DIR } = require('./helpers');
+const {
+  getElfFixtures,
+  getPeFixtures,
+  getMachoFixtures,
+  skipIfNoFixture,
+  FIXTURES_DIR,
+} = require('./helpers');
 
 const LIEF = require('../lib/index.js');
 
 describe('Parse error handling', () => {
   describe('LIEF.parse() errors', () => {
     it('should throw for non-existent file', () => {
-      assert.throws(() => {
-        LIEF.parse('/nonexistent/path/to/binary');
-      }, /Failed to parse|ENOENT|No such file/i, 'Should throw for non-existent file');
+      assert.throws(
+        () => {
+          LIEF.parse('/nonexistent/path/to/binary');
+        },
+        /Failed to parse|ENOENT|No such file/i,
+        'Should throw for non-existent file',
+      );
     });
 
     it('should throw for empty path', () => {
@@ -45,9 +55,13 @@ describe('Parse error handling', () => {
     });
 
     it('should throw for non-string argument', () => {
-      assert.throws(() => {
-        LIEF.parse(12345);
-      }, /requires.*string|invalid.*argument/i, 'Should throw for numeric argument');
+      assert.throws(
+        () => {
+          LIEF.parse(12345);
+        },
+        /requires.*string|invalid.*argument/i,
+        'Should throw for numeric argument',
+      );
 
       assert.throws(() => {
         LIEF.parse(null);
@@ -225,9 +239,13 @@ describe('FatBinary error handling', () => {
 
       const fat = LIEF.MachO.parse(fixture);
 
-      assert.throws(() => {
-        fat.at(-1);
-      }, /RangeError|out of range/i, 'Should throw for negative index');
+      assert.throws(
+        () => {
+          fat.at(-1);
+        },
+        /RangeError|out of range/i,
+        'Should throw for negative index',
+      );
     });
 
     it('should throw RangeError for out-of-bounds index', async (t) => {
@@ -237,9 +255,13 @@ describe('FatBinary error handling', () => {
 
       const fat = LIEF.MachO.parse(fixture);
 
-      assert.throws(() => {
-        fat.at(9999);
-      }, /RangeError|out of range/i, 'Should throw for out-of-bounds index');
+      assert.throws(
+        () => {
+          fat.at(9999);
+        },
+        /RangeError|out of range/i,
+        'Should throw for out-of-bounds index',
+      );
     });
 
     it('should return null when called without arguments', async (t) => {
@@ -261,9 +283,13 @@ describe('FatBinary error handling', () => {
 
       const fat = LIEF.MachO.parse(fixture);
 
-      assert.throws(() => {
-        fat.take(-1);
-      }, /RangeError|out of range/i, 'Should throw for negative index');
+      assert.throws(
+        () => {
+          fat.take(-1);
+        },
+        /RangeError|out of range/i,
+        'Should throw for negative index',
+      );
     });
 
     it('should throw RangeError for out-of-bounds index', async (t) => {
@@ -273,9 +299,13 @@ describe('FatBinary error handling', () => {
 
       const fat = LIEF.MachO.parse(fixture);
 
-      assert.throws(() => {
-        fat.take(9999);
-      }, /RangeError|out of range/i, 'Should throw for out-of-bounds index');
+      assert.throws(
+        () => {
+          fat.take(9999);
+        },
+        /RangeError|out of range/i,
+        'Should throw for out-of-bounds index',
+      );
     });
 
     it('should return null when called without arguments', async (t) => {
@@ -298,7 +328,7 @@ describe('Section content edge cases', () => {
 
     const binary = LIEF.parse(fixture);
     const sections = binary.sections();
-    const section = sections.find(s => s.size > 0n);
+    const section = sections.find((s) => s.size > 0n);
 
     if (!section) return t.skip('No sections with content');
 
@@ -336,9 +366,13 @@ describe('MachO Binary method validation', () => {
 
     const binary = LIEF.parse(fixture);
 
-    assert.throws(() => {
-      binary.write();
-    }, /requires.*path|argument/i, 'Should throw when write() called without arguments');
+    assert.throws(
+      () => {
+        binary.write();
+      },
+      /requires.*path|argument/i,
+      'Should throw when write() called without arguments',
+    );
   });
 
   it('should throw when extendSegment() called without arguments', async (t) => {
@@ -348,9 +382,13 @@ describe('MachO Binary method validation', () => {
 
     const binary = LIEF.parse(fixture);
 
-    assert.throws(() => {
-      binary.extendSegment();
-    }, /requires|argument/i, 'Should throw when extendSegment() called without arguments');
+    assert.throws(
+      () => {
+        binary.extendSegment();
+      },
+      /requires|argument/i,
+      'Should throw when extendSegment() called without arguments',
+    );
   });
 
   it('should throw when extendSegment() called with invalid segment', async (t) => {
@@ -360,9 +398,13 @@ describe('MachO Binary method validation', () => {
 
     const binary = LIEF.parse(fixture);
 
-    assert.throws(() => {
-      binary.extendSegment("not a segment", 0x1000);
-    }, /Segment|argument/i, 'Should throw for invalid segment argument');
+    assert.throws(
+      () => {
+        binary.extendSegment('not a segment', 0x1000);
+      },
+      /Segment|argument/i,
+      'Should throw for invalid segment argument',
+    );
   });
 
   it('should throw when extendSegment() called with invalid size type', async (t) => {
@@ -374,9 +416,13 @@ describe('MachO Binary method validation', () => {
     const segment = binary.getSegment('__TEXT');
     if (!segment) return t.skip('No __TEXT segment');
 
-    assert.throws(() => {
-      binary.extendSegment(segment, "not a number");
-    }, /number|BigInt|size/i, 'Should throw for invalid size type');
+    assert.throws(
+      () => {
+        binary.extendSegment(segment, 'not a number');
+      },
+      /number|BigInt|size/i,
+      'Should throw for invalid size type',
+    );
   });
 
   it('should accept BigInt size in extendSegment()', async (t) => {
@@ -405,7 +451,7 @@ describe('ELF overlay validation', () => {
 
     // Should not throw, just silently ignore
     assert.doesNotThrow(() => {
-      binary.overlay = "not a buffer";
+      binary.overlay = 'not a buffer';
     }, 'Should silently ignore string');
 
     assert.doesNotThrow(() => {
@@ -426,13 +472,21 @@ describe('patchAddress validation', () => {
 
     const binary = LIEF.parse(fixture);
 
-    assert.throws(() => {
-      binary.patchAddress();
-    }, /requires|argument/i, 'Should throw with no arguments');
+    assert.throws(
+      () => {
+        binary.patchAddress();
+      },
+      /requires|argument/i,
+      'Should throw with no arguments',
+    );
 
-    assert.throws(() => {
-      binary.patchAddress(0x1000n);
-    }, /requires|argument/i, 'Should throw with only address');
+    assert.throws(
+      () => {
+        binary.patchAddress(0x1000n);
+      },
+      /requires|argument/i,
+      'Should throw with only address',
+    );
   });
 });
 
@@ -464,9 +518,17 @@ describe('Type coercion edge cases', () => {
     if (sections.length === 0) return t.skip('No sections');
 
     for (const section of sections) {
-      assert.strictEqual(typeof section.virtualAddress, 'bigint', `${section.name} virtualAddress should be bigint`);
+      assert.strictEqual(
+        typeof section.virtualAddress,
+        'bigint',
+        `${section.name} virtualAddress should be bigint`,
+      );
       assert.strictEqual(typeof section.size, 'bigint', `${section.name} size should be bigint`);
-      assert.strictEqual(typeof section.fileOffset, 'bigint', `${section.name} fileOffset should be bigint`);
+      assert.strictEqual(
+        typeof section.fileOffset,
+        'bigint',
+        `${section.name} fileOffset should be bigint`,
+      );
     }
   });
 });

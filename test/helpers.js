@@ -58,7 +58,9 @@ function getPeFixtures() {
   return {
     x64: hasFixture('pe/hello-windows-x64.exe') ? getFixture('pe/hello-windows-x64.exe') : null,
     x86: hasFixture('pe/hello-windows-x86.exe') ? getFixture('pe/hello-windows-x86.exe') : null,
-    arm64: hasFixture('pe/hello-windows-arm64.exe') ? getFixture('pe/hello-windows-arm64.exe') : null,
+    arm64: hasFixture('pe/hello-windows-arm64.exe')
+      ? getFixture('pe/hello-windows-arm64.exe')
+      : null,
   };
 }
 
@@ -70,7 +72,9 @@ function getMachoFixtures() {
   return {
     x64: hasFixture('macho/hello-macos-x64') ? getFixture('macho/hello-macos-x64') : null,
     arm64: hasFixture('macho/hello-macos-arm64') ? getFixture('macho/hello-macos-arm64') : null,
-    universal: hasFixture('macho/hello-macos-universal') ? getFixture('macho/hello-macos-universal') : null,
+    universal: hasFixture('macho/hello-macos-universal')
+      ? getFixture('macho/hello-macos-universal')
+      : null,
   };
 }
 

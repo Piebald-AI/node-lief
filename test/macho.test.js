@@ -32,7 +32,11 @@ describe('MachO.Binary', () => {
 
       const binary = LIEF.parse(fixture);
 
-      assert.strictEqual(typeof binary.hasCodeSignature, 'boolean', 'hasCodeSignature should be boolean');
+      assert.strictEqual(
+        typeof binary.hasCodeSignature,
+        'boolean',
+        'hasCodeSignature should be boolean',
+      );
     });
 
     it('should have header property', async (t) => {
@@ -137,7 +141,11 @@ describe('MachO.Binary', () => {
       assert.strictEqual(typeof header.is32Bit, 'boolean', 'is32Bit should be boolean');
       assert.strictEqual(typeof header.is64Bit, 'boolean', 'is64Bit should be boolean');
       // A binary should be either 32-bit or 64-bit, not both
-      assert.notStrictEqual(header.is32Bit, header.is64Bit, 'Binary should be either 32-bit or 64-bit');
+      assert.notStrictEqual(
+        header.is32Bit,
+        header.is64Bit,
+        'Binary should be either 32-bit or 64-bit',
+      );
     });
 
     it('should detect x64 CPU type correctly', async (t) => {
@@ -146,7 +154,11 @@ describe('MachO.Binary', () => {
       const binary = LIEF.parse(fixtures.x64);
       const header = binary.header;
 
-      assert.strictEqual(header.cpuType, LIEF.MachO.Header.CPU_TYPE.X86_64, 'Should be X86_64 CPU type');
+      assert.strictEqual(
+        header.cpuType,
+        LIEF.MachO.Header.CPU_TYPE.X86_64,
+        'Should be X86_64 CPU type',
+      );
       assert.strictEqual(header.is64Bit, true, 'Should be 64-bit');
     });
 
@@ -156,7 +168,11 @@ describe('MachO.Binary', () => {
       const binary = LIEF.parse(fixtures.arm64);
       const header = binary.header;
 
-      assert.strictEqual(header.cpuType, LIEF.MachO.Header.CPU_TYPE.ARM64, 'Should be ARM64 CPU type');
+      assert.strictEqual(
+        header.cpuType,
+        LIEF.MachO.Header.CPU_TYPE.ARM64,
+        'Should be ARM64 CPU type',
+      );
       assert.strictEqual(header.is64Bit, true, 'Should be 64-bit');
     });
   });
@@ -167,7 +183,11 @@ describe('MachO.Binary', () => {
     });
 
     it('should have X86_64 constant', () => {
-      assert.strictEqual(LIEF.MachO.Header.CPU_TYPE.X86_64, 16777223, 'X86_64 should be 16777223 (7 | ABI64)');
+      assert.strictEqual(
+        LIEF.MachO.Header.CPU_TYPE.X86_64,
+        16777223,
+        'X86_64 should be 16777223 (7 | ABI64)',
+      );
     });
 
     it('should have ARM constant', () => {
@@ -175,7 +195,11 @@ describe('MachO.Binary', () => {
     });
 
     it('should have ARM64 constant', () => {
-      assert.strictEqual(LIEF.MachO.Header.CPU_TYPE.ARM64, 16777228, 'ARM64 should be 16777228 (12 | ABI64)');
+      assert.strictEqual(
+        LIEF.MachO.Header.CPU_TYPE.ARM64,
+        16777228,
+        'ARM64 should be 16777228 (12 | ABI64)',
+      );
     });
 
     it('should have POWERPC constant', () => {
@@ -183,7 +207,11 @@ describe('MachO.Binary', () => {
     });
 
     it('should have POWERPC64 constant', () => {
-      assert.strictEqual(LIEF.MachO.Header.CPU_TYPE.POWERPC64, 16777234, 'POWERPC64 should be 16777234 (18 | ABI64)');
+      assert.strictEqual(
+        LIEF.MachO.Header.CPU_TYPE.POWERPC64,
+        16777234,
+        'POWERPC64 should be 16777234 (18 | ABI64)',
+      );
     });
 
     it('should have ANY constant', () => {
@@ -252,7 +280,11 @@ describe('MachO.Binary', () => {
 
       if (!segment) return t.skip('No __TEXT segment');
 
-      assert.strictEqual(typeof segment.virtualAddress, 'bigint', 'virtualAddress should be bigint');
+      assert.strictEqual(
+        typeof segment.virtualAddress,
+        'bigint',
+        'virtualAddress should be bigint',
+      );
     });
 
     it('should have virtualSize property', async (t) => {
@@ -358,12 +390,12 @@ describe('MachO.Binary', () => {
 
       const binary = LIEF.parse(fixture);
       const sections = binary.sections();
-      const sectionNames = sections.map(s => s.name);
+      const sectionNames = sections.map((s) => s.name);
 
       // MachO binaries typically have __text section
       assert.ok(
-        sectionNames.some(name => name === '__text' || name === '__stubs'),
-        'Should have code sections'
+        sectionNames.some((name) => name === '__text' || name === '__stubs'),
+        'Should have code sections',
       );
     });
   });
@@ -475,7 +507,7 @@ describe('MachO.FatBinary', () => {
       assert.notStrictEqual(
         first.header.cpuType,
         second.header.cpuType,
-        'Different slices should have different CPU types'
+        'Different slices should have different CPU types',
       );
     });
 
@@ -515,9 +547,13 @@ describe('MachO.FatBinary', () => {
 
       const fat = LIEF.MachO.parse(fixtures.universal);
 
-      assert.throws(() => {
-        fat.take(999);
-      }, /RangeError|out of range/i, 'Should throw for invalid index');
+      assert.throws(
+        () => {
+          fat.take(999);
+        },
+        /RangeError|out of range/i,
+        'Should throw for invalid index',
+      );
     });
   });
 });

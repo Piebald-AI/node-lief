@@ -32,9 +32,13 @@ describe('Abstract.Section', () => {
     const peFixtures = getPeFixtures();
     const machoFixtures = getMachoFixtures();
 
-    const fixturePath = elfFixtures.x64 || elfFixtures.arm64 ||
-                        peFixtures.x64 || peFixtures.arm64 ||
-                        machoFixtures.x64 || machoFixtures.arm64;
+    const fixturePath =
+      elfFixtures.x64 ||
+      elfFixtures.arm64 ||
+      peFixtures.x64 ||
+      peFixtures.arm64 ||
+      machoFixtures.x64 ||
+      machoFixtures.arm64;
 
     if (fixturePath) {
       binary = LIEF.parse(fixturePath);
@@ -56,7 +60,11 @@ describe('Abstract.Section', () => {
 
       const section = sections[0];
 
-      assert.strictEqual(typeof section.virtualAddress, 'bigint', 'virtualAddress should be bigint');
+      assert.strictEqual(
+        typeof section.virtualAddress,
+        'bigint',
+        'virtualAddress should be bigint',
+      );
       assert.ok(section.virtualAddress >= 0n, 'virtualAddress should be non-negative');
     });
 
@@ -93,7 +101,7 @@ describe('Abstract.Section', () => {
       if (!binary || sections.length === 0) return t.skip('No fixtures or sections available');
 
       // Find a section with non-zero size
-      const section = sections.find(s => s.size > 0n);
+      const section = sections.find((s) => s.size > 0n);
       if (!section) return t.skip('No sections with content');
 
       const content = section.content;
@@ -104,7 +112,7 @@ describe('Abstract.Section', () => {
     it('should be able to set content with Buffer', async (t) => {
       if (!binary || sections.length === 0) return t.skip('No fixtures or sections available');
 
-      const section = sections.find(s => s.size > 0n);
+      const section = sections.find((s) => s.size > 0n);
       if (!section) return t.skip('No sections with content');
 
       const newContent = Buffer.from([0x90, 0x90, 0x90, 0x90]); // NOP sled
@@ -117,7 +125,7 @@ describe('Abstract.Section', () => {
     it('should be able to set content with number array', async (t) => {
       if (!binary || sections.length === 0) return t.skip('No fixtures or sections available');
 
-      const section = sections.find(s => s.size > 0n);
+      const section = sections.find((s) => s.size > 0n);
       if (!section) return t.skip('No sections with content');
 
       const newContent = [0x90, 0x90, 0x90, 0x90]; // NOP sled
@@ -145,7 +153,7 @@ describe('Abstract.Section', () => {
     it('should silently ignore non-BigInt size assignment', async (t) => {
       if (!binary || sections.length === 0) return t.skip('No fixtures or sections available');
 
-      const section = sections.find(s => s.size > 0n);
+      const section = sections.find((s) => s.size > 0n);
       if (!section) return t.skip('No sections with content');
 
       const originalSize = section.size;
@@ -156,7 +164,7 @@ describe('Abstract.Section', () => {
       }, 'Setting size with number should not throw');
 
       assert.doesNotThrow(() => {
-        section.size = "12345"; // string
+        section.size = '12345'; // string
       }, 'Setting size with string should not throw');
 
       assert.doesNotThrow(() => {
@@ -178,11 +186,11 @@ describe('ELF Section specifics', () => {
 
     const binary = LIEF.parse(fixture);
     const sections = binary.sections();
-    const sectionNames = sections.map(s => s.name);
+    const sectionNames = sections.map((s) => s.name);
 
     // ELF binaries typically start with empty name section and have .text
-    const hasCodeSection = sectionNames.some(name =>
-      name === '.text' || name === '.init' || name === '.plt'
+    const hasCodeSection = sectionNames.some(
+      (name) => name === '.text' || name === '.init' || name === '.plt',
     );
 
     assert.ok(hasCodeSection, 'Should have code sections');
@@ -227,7 +235,7 @@ describe('PE Section specifics', () => {
 
     const binary = LIEF.parse(fixture);
     const sections = binary.sections();
-    const section = sections.find(s => s.size > 0n);
+    const section = sections.find((s) => s.size > 0n);
 
     if (!section) return t.skip('No sections with content');
 
@@ -247,7 +255,7 @@ describe('PE Section specifics', () => {
 
     const binary = LIEF.parse(fixture);
     const sections = binary.sections();
-    const section = sections.find(s => s.virtualSize > 0n);
+    const section = sections.find((s) => s.virtualSize > 0n);
 
     if (!section) return t.skip('No sections with virtualSize');
 
@@ -259,10 +267,14 @@ describe('PE Section specifics', () => {
     }, 'Setting virtualSize with number should not throw');
 
     assert.doesNotThrow(() => {
-      section.virtualSize = "12345"; // string
+      section.virtualSize = '12345'; // string
     }, 'Setting virtualSize with string should not throw');
 
-    assert.strictEqual(section.virtualSize, originalVirtualSize, 'virtualSize should not change with invalid input');
+    assert.strictEqual(
+      section.virtualSize,
+      originalVirtualSize,
+      'virtualSize should not change with invalid input',
+    );
   });
 
   it('should have characteristics property', async (t) => {
@@ -276,7 +288,11 @@ describe('PE Section specifics', () => {
 
     const section = sections[0];
 
-    assert.strictEqual(typeof section.characteristics, 'number', 'characteristics should be number');
+    assert.strictEqual(
+      typeof section.characteristics,
+      'number',
+      'characteristics should be number',
+    );
   });
 
   it('should have standard PE section names', async (t) => {
@@ -285,11 +301,11 @@ describe('PE Section specifics', () => {
 
     const binary = LIEF.parse(fixture);
     const sections = binary.sections();
-    const sectionNames = sections.map(s => s.name);
+    const sectionNames = sections.map((s) => s.name);
 
     // PE binaries typically have .text section
-    const hasTextSection = sectionNames.some(name =>
-      name === '.text' || name === '.code' || name === 'CODE'
+    const hasTextSection = sectionNames.some(
+      (name) => name === '.text' || name === '.code' || name === 'CODE',
     );
 
     assert.ok(hasTextSection, 'Should have code section');
@@ -305,11 +321,11 @@ describe('MachO Section specifics', () => {
 
     const binary = LIEF.parse(fixture);
     const sections = binary.sections();
-    const sectionNames = sections.map(s => s.name);
+    const sectionNames = sections.map((s) => s.name);
 
     // MachO sections typically have names like __text, __data, etc.
-    const hasMachOSections = sectionNames.some(name =>
-      name.startsWith('__') || name === '__text' || name === '__data'
+    const hasMachOSections = sectionNames.some(
+      (name) => name.startsWith('__') || name === '__text' || name === '__data',
     );
 
     assert.ok(hasMachOSections, 'Should have MachO-style section names');
@@ -347,7 +363,7 @@ describe('Section content manipulation', () => {
 
     const binary = LIEF.parse(fixture);
     const sections = binary.sections();
-    const section = sections.find(s => s.size > 0n);
+    const section = sections.find((s) => s.size > 0n);
 
     if (!section) return t.skip('No sections with content');
 
@@ -355,7 +371,7 @@ describe('Section content manipulation', () => {
     assert.ok(Buffer.isBuffer(originalContent), 'Original content should be Buffer');
 
     // Modify and verify
-    const modifiedContent = Buffer.alloc(originalContent.length, 0xCC);
+    const modifiedContent = Buffer.alloc(originalContent.length, 0xcc);
     section.content = modifiedContent;
 
     const newContent = section.content;
@@ -368,7 +384,7 @@ describe('Section content manipulation', () => {
 
     const binary = LIEF.parse(fixture);
     const sections = binary.sections();
-    const section = sections.find(s => s.size > 0n);
+    const section = sections.find((s) => s.size > 0n);
 
     if (!section) return t.skip('No sections with content');
 
@@ -382,7 +398,7 @@ describe('Section content manipulation', () => {
 
     const binary = LIEF.parse(fixture);
     const sections = binary.sections();
-    const section = sections.find(s => s.size > 0n);
+    const section = sections.find((s) => s.size > 0n);
 
     if (!section) return t.skip('No sections with content');
 

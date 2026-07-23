@@ -45,15 +45,15 @@
     "test": "node --test test/**/*.test.js",
     "coverage": "./scripts/coverage.sh",
     "typecheck": "tsc --noEmit",
-    "format": "prettier --write \"lib/**/*.{js,ts,d.ts}\"",
-    "format:check": "prettier --check \"lib/**/*.{js,ts,d.ts}\""
+    "format": "oxfmt",
+    "format:check": "oxfmt --check"
   },
   "devDependencies": {
     "node-addon-api": "github:legendecas/node-addon-api#a438147a58e46b68bcf90eed10fd68aadb9d3c9b",
     "node-gyp": "^13.0.1",
     "node-gyp-build": "^4.8.4",
+    "oxfmt": "^0.60.0",
     "prebuildify": "^6.0.1",
-    "prettier": "^3.9.5",
     "typescript": "^7.0.2"
   }
 }

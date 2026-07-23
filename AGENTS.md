@@ -49,6 +49,7 @@ pnpm prebuildify
 ## Naming Conventions
 
 **JavaScript/TypeScript API**: All method and property names use **camelCase**:
+
 - `binary.sections()` (not `binary.get_sections()`)
 - `binary.getSymbol(name)` (not `binary.get_symbol(name)`)
 - `binary.patchAddress(addr, data)` (not `binary.patch_address(addr, data)`)
@@ -99,12 +100,14 @@ Three-tier architecture leveraging LIEF's C++ inheritance:
 **Ownership Model**: Native classes use `std::unique_ptr<LIEF::*>` for owned pointers, with factory methods (`NewInstance()`) to create JS objects from parsed binaries. Each format-specific class owns the appropriate type (e.g., `PEBinary` owns `std::unique_ptr<LIEF::PE::Binary>`) and sets the inherited `BinaryImpl::binary_` pointer to it for polymorphic access.
 
 **DRY Inheritance Architecture**:
+
 - `BinaryImpl` contains all shared method implementations
 - Format-specific classes (PE, ELF, MachO) inherit from both `Napi::ObjectWrap<T>` and `BinaryImpl`
 - Common methods are simple inline forwarders in headers (e.g., `GetSections(info) { return GetSectionsImpl(info.Env()); }`)
 - No code duplication across format implementations
 
 **Dual Parse Functions**:
+
 - `LIEF.parse(filename)`: Returns format-specific binary (ELF.Binary, PE.Binary, MachO.Binary, or Abstract.Binary)
 - `LIEF.MachO.parse(filename)`: Returns MachO.FatBinary (can contain multiple architectures)
 
@@ -121,6 +124,7 @@ node test/test-bun-repack.js /path/to/macho/binary
 ```
 
 Test file demonstrates:
+
 - Parsing binaries across formats
 - Extracting sections/segments
 - Modifying binary content
@@ -144,6 +148,7 @@ Test file demonstrates:
 ### Adding Format-Specific Functionality
 
 Example for PE-specific feature:
+
 1. Add method declaration and implementation in `src/pe/binary.{h,cpp}`
 2. Register in `PEBinary::Init()` using `InstanceMethod<&PEBinary::MethodName>("methodName")` (use camelCase!)
 3. Update TypeScript definitions under `namespace PE`
@@ -152,6 +157,7 @@ Example for PE-specific feature:
 ### Working with LIEF Types
 
 Common conversions:
+
 - LIEF addresses are `uint64_t` → use `Napi::BigInt` in JS
 - LIEF strings are `std::string` → use `Napi::String`
 - LIEF vectors → convert to `Napi::Array`
@@ -160,15 +166,18 @@ Common conversions:
 ## Platform-Specific Notes
 
 ### macOS
+
 - Minimum deployment target: macOS 13.0 (set in binding.gyp and build-lief.sh)
 - Uses libc++ standard library
 - Requires Xcode command line tools
 
 ### Linux
+
 - Requires `-fPIC` for static library linking
 - GCC/Clang with C++17 support
 
 ### Windows
+
 - Uses LIEF.lib instead of libLIEF.a
 - MSVC toolchain with `/std:c++17`
 

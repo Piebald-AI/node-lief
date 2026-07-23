@@ -14,11 +14,11 @@
 
 /**
  * Known-value verification tests
- * 
+ *
  * These tests verify that node-lief returns correct values by comparing
  * against known values extracted from the test fixtures using standard tools
  * (readelf, llvm-objdump, llvm-otool, etc.)
- * 
+ *
  * If these tests fail after rebuilding fixtures, update the expected values
  * by running the verification commands in test/fixtures/README.md
  */
@@ -45,10 +45,10 @@ const EXPECTED = {
       type: 'EXEC',
       // readelf -s elf/hello-linux-x64 | grep main
       symbols: {
-        'main': { value: 0x1013bd0n, size: 63n },
-        'helper_function': { value: 0x1013b30n, size: 125n },
-        'print_message': { value: 0x1013bb0n, size: 30n },
-        'global_counter': { value: 0x1069c20n, size: 4n },
+        main: { value: 0x1013bd0n, size: 63n },
+        helper_function: { value: 0x1013b30n, size: 125n },
+        print_message: { value: 0x1013bb0n, size: 30n },
+        global_counter: { value: 0x1069c20n, size: 4n },
       },
       // readelf -S elf/hello-linux-x64
       sections: {
@@ -117,16 +117,16 @@ const EXPECTED = {
       flags: 0x00b00085,
       // llvm-nm-20 macho/hello-macos-x64
       symbols: {
-        '_main': 0x100036fd0n,
-        '_helper_function': 0x100036f30n,
-        '_print_message': 0x100036fb0n,
-        '_global_counter': 0x100060df0n,
+        _main: 0x100036fd0n,
+        _helper_function: 0x100036f30n,
+        _print_message: 0x100036fb0n,
+        _global_counter: 0x100060df0n,
       },
       // Segment info from llvm-otool-20 -l
       segments: {
-        '__TEXT': { vmaddr: 0x100000000n, vmsize: 0x5e428n },
-        '__DATA': { vmaddr: 0x10005f000n },
-        '__LINKEDIT': { vmaddr: 0x100061000n },
+        __TEXT: { vmaddr: 0x100000000n, vmsize: 0x5e428n },
+        __DATA: { vmaddr: 0x10005f000n },
+        __LINKEDIT: { vmaddr: 0x100061000n },
       },
     },
     arm64: {
@@ -150,8 +150,11 @@ describe('ELF Known Values', () => {
     it('should have correct entrypoint', async (t) => {
       if (skipIfNoFixture(fixtures.x64, 'ELF x64')) return t.skip();
       const binary = LIEF.parse(fixtures.x64);
-      assert.strictEqual(binary.entrypoint, EXPECTED.elf.x64.entrypoint,
-        `Entrypoint should be 0x${EXPECTED.elf.x64.entrypoint.toString(16)}`);
+      assert.strictEqual(
+        binary.entrypoint,
+        EXPECTED.elf.x64.entrypoint,
+        `Entrypoint should be 0x${EXPECTED.elf.x64.entrypoint.toString(16)}`,
+      );
     });
 
     it('should find main symbol with correct value', async (t) => {
@@ -159,10 +162,16 @@ describe('ELF Known Values', () => {
       const binary = LIEF.parse(fixtures.x64);
       const main = binary.getSymbol('main');
       assert.ok(main, 'Should find main symbol');
-      assert.strictEqual(main.value, EXPECTED.elf.x64.symbols.main.value,
-        `main should be at 0x${EXPECTED.elf.x64.symbols.main.value.toString(16)}`);
-      assert.strictEqual(main.size, EXPECTED.elf.x64.symbols.main.size,
-        `main size should be ${EXPECTED.elf.x64.symbols.main.size}`);
+      assert.strictEqual(
+        main.value,
+        EXPECTED.elf.x64.symbols.main.value,
+        `main should be at 0x${EXPECTED.elf.x64.symbols.main.value.toString(16)}`,
+      );
+      assert.strictEqual(
+        main.size,
+        EXPECTED.elf.x64.symbols.main.size,
+        `main size should be ${EXPECTED.elf.x64.symbols.main.size}`,
+      );
     });
 
     it('should find helper_function symbol with correct value', async (t) => {
@@ -202,8 +211,11 @@ describe('ELF Known Values', () => {
       if (skipIfNoFixture(fixtures.x64, 'ELF x64')) return t.skip();
       const binary = LIEF.parse(fixtures.x64);
       const relocations = binary.relocations();
-      assert.strictEqual(relocations.length, EXPECTED.elf.x64.relocationCount,
-        `Should have ${EXPECTED.elf.x64.relocationCount} relocations`);
+      assert.strictEqual(
+        relocations.length,
+        EXPECTED.elf.x64.relocationCount,
+        `Should have ${EXPECTED.elf.x64.relocationCount} relocations`,
+      );
     });
   });
 
@@ -265,22 +277,40 @@ describe('PE Known Values', () => {
     it('should have correct linker version', async (t) => {
       if (skipIfNoFixture(fixtures.x64, 'PE x64')) return t.skip();
       const binary = LIEF.parse(fixtures.x64);
-      assert.strictEqual(binary.optionalHeader.majorLinkerVersion, EXPECTED.pe.x64.majorLinkerVersion);
-      assert.strictEqual(binary.optionalHeader.minorLinkerVersion, EXPECTED.pe.x64.minorLinkerVersion);
+      assert.strictEqual(
+        binary.optionalHeader.majorLinkerVersion,
+        EXPECTED.pe.x64.majorLinkerVersion,
+      );
+      assert.strictEqual(
+        binary.optionalHeader.minorLinkerVersion,
+        EXPECTED.pe.x64.minorLinkerVersion,
+      );
     });
 
     it('should have correct OS version', async (t) => {
       if (skipIfNoFixture(fixtures.x64, 'PE x64')) return t.skip();
       const binary = LIEF.parse(fixtures.x64);
-      assert.strictEqual(binary.optionalHeader.majorOperatingSystemVersion, EXPECTED.pe.x64.majorOperatingSystemVersion);
-      assert.strictEqual(binary.optionalHeader.minorOperatingSystemVersion, EXPECTED.pe.x64.minorOperatingSystemVersion);
+      assert.strictEqual(
+        binary.optionalHeader.majorOperatingSystemVersion,
+        EXPECTED.pe.x64.majorOperatingSystemVersion,
+      );
+      assert.strictEqual(
+        binary.optionalHeader.minorOperatingSystemVersion,
+        EXPECTED.pe.x64.minorOperatingSystemVersion,
+      );
     });
 
     it('should have correct subsystem version', async (t) => {
       if (skipIfNoFixture(fixtures.x64, 'PE x64')) return t.skip();
       const binary = LIEF.parse(fixtures.x64);
-      assert.strictEqual(binary.optionalHeader.majorSubsystemVersion, EXPECTED.pe.x64.majorSubsystemVersion);
-      assert.strictEqual(binary.optionalHeader.minorSubsystemVersion, EXPECTED.pe.x64.minorSubsystemVersion);
+      assert.strictEqual(
+        binary.optionalHeader.majorSubsystemVersion,
+        EXPECTED.pe.x64.majorSubsystemVersion,
+      );
+      assert.strictEqual(
+        binary.optionalHeader.minorSubsystemVersion,
+        EXPECTED.pe.x64.minorSubsystemVersion,
+      );
     });
 
     it('should have correct subsystem (CONSOLE)', async (t) => {
@@ -292,14 +322,23 @@ describe('PE Known Values', () => {
     it('should have correct stack sizes', async (t) => {
       if (skipIfNoFixture(fixtures.x64, 'PE x64')) return t.skip();
       const binary = LIEF.parse(fixtures.x64);
-      assert.strictEqual(binary.optionalHeader.sizeOfStackReserve, EXPECTED.pe.x64.sizeOfStackReserve);
-      assert.strictEqual(binary.optionalHeader.sizeOfStackCommit, EXPECTED.pe.x64.sizeOfStackCommit);
+      assert.strictEqual(
+        binary.optionalHeader.sizeOfStackReserve,
+        EXPECTED.pe.x64.sizeOfStackReserve,
+      );
+      assert.strictEqual(
+        binary.optionalHeader.sizeOfStackCommit,
+        EXPECTED.pe.x64.sizeOfStackCommit,
+      );
     });
 
     it('should have correct heap sizes', async (t) => {
       if (skipIfNoFixture(fixtures.x64, 'PE x64')) return t.skip();
       const binary = LIEF.parse(fixtures.x64);
-      assert.strictEqual(binary.optionalHeader.sizeOfHeapReserve, EXPECTED.pe.x64.sizeOfHeapReserve);
+      assert.strictEqual(
+        binary.optionalHeader.sizeOfHeapReserve,
+        EXPECTED.pe.x64.sizeOfHeapReserve,
+      );
       assert.strictEqual(binary.optionalHeader.sizeOfHeapCommit, EXPECTED.pe.x64.sizeOfHeapCommit);
     });
 
@@ -389,7 +428,7 @@ describe('MachO Known Values', () => {
       if (skipIfNoFixture(fixtures.x64, 'MachO x64')) return t.skip();
       const binary = LIEF.parse(fixtures.x64);
       const symbols = binary.symbols();
-      const main = symbols.find(s => s.name === '_main');
+      const main = symbols.find((s) => s.name === '_main');
       assert.ok(main, 'Should find _main symbol');
       // Note: MachO symbols might not have value exposed the same way
       // This test documents the expected behavior
@@ -421,12 +460,12 @@ describe('MachO Known Values', () => {
     it('should contain X86_64 and ARM64 slices', async (t) => {
       if (skipIfNoFixture(fixtures.universal, 'MachO universal')) return t.skip();
       const fat = LIEF.MachO.parse(fixtures.universal);
-      
+
       const cpuTypes = [];
       for (let i = 0; i < fat.size(); i++) {
         cpuTypes.push(fat.at(i).header.cpuType);
       }
-      
+
       assert.ok(cpuTypes.includes(LIEF.MachO.Header.CPU_TYPE.X86_64), 'Should have X86_64');
       assert.ok(cpuTypes.includes(LIEF.MachO.Header.CPU_TYPE.ARM64), 'Should have ARM64');
     });

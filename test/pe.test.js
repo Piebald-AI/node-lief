@@ -52,7 +52,11 @@ describe('PE.Binary', () => {
       const segments = binary.segments();
 
       assert.ok(Array.isArray(segments), 'segments() should return array');
-      assert.strictEqual(segments.length, 0, 'PE segments() should be empty (PE uses sections, not segments)');
+      assert.strictEqual(
+        segments.length,
+        0,
+        'PE segments() should be empty (PE uses sections, not segments)',
+      );
     });
   });
 
@@ -64,7 +68,10 @@ describe('PE.Binary', () => {
       const binary = LIEF.parse(fixture);
       const header = binary.optionalHeader;
 
-      assert.ok(['PE32', 'PE32_PLUS', 'UNKNOWN'].includes(header.magic), 'Magic should be valid PE type');
+      assert.ok(
+        ['PE32', 'PE32_PLUS', 'UNKNOWN'].includes(header.magic),
+        'Magic should be valid PE type',
+      );
     });
 
     it('should have PE32_PLUS magic for 64-bit PE', async (t) => {
@@ -93,8 +100,16 @@ describe('PE.Binary', () => {
       const binary = LIEF.parse(fixture);
       const header = binary.optionalHeader;
 
-      assert.strictEqual(typeof header.majorLinkerVersion, 'number', 'majorLinkerVersion should be number');
-      assert.strictEqual(typeof header.minorLinkerVersion, 'number', 'minorLinkerVersion should be number');
+      assert.strictEqual(
+        typeof header.majorLinkerVersion,
+        'number',
+        'majorLinkerVersion should be number',
+      );
+      assert.strictEqual(
+        typeof header.minorLinkerVersion,
+        'number',
+        'minorLinkerVersion should be number',
+      );
     });
 
     it('should have size properties', async (t) => {
@@ -105,8 +120,16 @@ describe('PE.Binary', () => {
       const header = binary.optionalHeader;
 
       assert.strictEqual(typeof header.sizeOfCode, 'number', 'sizeOfCode should be number');
-      assert.strictEqual(typeof header.sizeOfInitializedData, 'number', 'sizeOfInitializedData should be number');
-      assert.strictEqual(typeof header.sizeOfUninitializedData, 'number', 'sizeOfUninitializedData should be number');
+      assert.strictEqual(
+        typeof header.sizeOfInitializedData,
+        'number',
+        'sizeOfInitializedData should be number',
+      );
+      assert.strictEqual(
+        typeof header.sizeOfUninitializedData,
+        'number',
+        'sizeOfUninitializedData should be number',
+      );
       assert.strictEqual(typeof header.sizeOfImage, 'number', 'sizeOfImage should be number');
       assert.strictEqual(typeof header.sizeOfHeaders, 'number', 'sizeOfHeaders should be number');
     });
@@ -118,7 +141,11 @@ describe('PE.Binary', () => {
       const binary = LIEF.parse(fixture);
       const header = binary.optionalHeader;
 
-      assert.strictEqual(typeof header.addressOfEntrypoint, 'number', 'addressOfEntrypoint should be number');
+      assert.strictEqual(
+        typeof header.addressOfEntrypoint,
+        'number',
+        'addressOfEntrypoint should be number',
+      );
       assert.strictEqual(typeof header.baseOfCode, 'number', 'baseOfCode should be number');
       // baseOfData might be 0 for PE32+ (64-bit)
       assert.strictEqual(typeof header.baseOfData, 'number', 'baseOfData should be number');
@@ -132,7 +159,11 @@ describe('PE.Binary', () => {
       const binary = LIEF.parse(fixture);
       const header = binary.optionalHeader;
 
-      assert.strictEqual(typeof header.sectionAlignment, 'number', 'sectionAlignment should be number');
+      assert.strictEqual(
+        typeof header.sectionAlignment,
+        'number',
+        'sectionAlignment should be number',
+      );
       assert.strictEqual(typeof header.fileAlignment, 'number', 'fileAlignment should be number');
       // Common values are 4096 (0x1000) for section alignment and 512 (0x200) for file alignment
       assert.ok(header.sectionAlignment > 0, 'sectionAlignment should be positive');
@@ -146,12 +177,36 @@ describe('PE.Binary', () => {
       const binary = LIEF.parse(fixture);
       const header = binary.optionalHeader;
 
-      assert.strictEqual(typeof header.majorOperatingSystemVersion, 'number', 'majorOperatingSystemVersion should be number');
-      assert.strictEqual(typeof header.minorOperatingSystemVersion, 'number', 'minorOperatingSystemVersion should be number');
-      assert.strictEqual(typeof header.majorImageVersion, 'number', 'majorImageVersion should be number');
-      assert.strictEqual(typeof header.minorImageVersion, 'number', 'minorImageVersion should be number');
-      assert.strictEqual(typeof header.majorSubsystemVersion, 'number', 'majorSubsystemVersion should be number');
-      assert.strictEqual(typeof header.minorSubsystemVersion, 'number', 'minorSubsystemVersion should be number');
+      assert.strictEqual(
+        typeof header.majorOperatingSystemVersion,
+        'number',
+        'majorOperatingSystemVersion should be number',
+      );
+      assert.strictEqual(
+        typeof header.minorOperatingSystemVersion,
+        'number',
+        'minorOperatingSystemVersion should be number',
+      );
+      assert.strictEqual(
+        typeof header.majorImageVersion,
+        'number',
+        'majorImageVersion should be number',
+      );
+      assert.strictEqual(
+        typeof header.minorImageVersion,
+        'number',
+        'minorImageVersion should be number',
+      );
+      assert.strictEqual(
+        typeof header.majorSubsystemVersion,
+        'number',
+        'majorSubsystemVersion should be number',
+      );
+      assert.strictEqual(
+        typeof header.minorSubsystemVersion,
+        'number',
+        'minorSubsystemVersion should be number',
+      );
     });
 
     it('should have checksum and subsystem properties', async (t) => {
@@ -163,7 +218,11 @@ describe('PE.Binary', () => {
 
       assert.strictEqual(typeof header.checksum, 'number', 'checksum should be number');
       assert.strictEqual(typeof header.subsystem, 'number', 'subsystem should be number');
-      assert.strictEqual(typeof header.dllCharacteristics, 'number', 'dllCharacteristics should be number');
+      assert.strictEqual(
+        typeof header.dllCharacteristics,
+        'number',
+        'dllCharacteristics should be number',
+      );
     });
 
     it('should have stack and heap size properties as BigInt', async (t) => {
@@ -173,10 +232,26 @@ describe('PE.Binary', () => {
       const binary = LIEF.parse(fixture);
       const header = binary.optionalHeader;
 
-      assert.strictEqual(typeof header.sizeOfStackReserve, 'bigint', 'sizeOfStackReserve should be bigint');
-      assert.strictEqual(typeof header.sizeOfStackCommit, 'bigint', 'sizeOfStackCommit should be bigint');
-      assert.strictEqual(typeof header.sizeOfHeapReserve, 'bigint', 'sizeOfHeapReserve should be bigint');
-      assert.strictEqual(typeof header.sizeOfHeapCommit, 'bigint', 'sizeOfHeapCommit should be bigint');
+      assert.strictEqual(
+        typeof header.sizeOfStackReserve,
+        'bigint',
+        'sizeOfStackReserve should be bigint',
+      );
+      assert.strictEqual(
+        typeof header.sizeOfStackCommit,
+        'bigint',
+        'sizeOfStackCommit should be bigint',
+      );
+      assert.strictEqual(
+        typeof header.sizeOfHeapReserve,
+        'bigint',
+        'sizeOfHeapReserve should be bigint',
+      );
+      assert.strictEqual(
+        typeof header.sizeOfHeapCommit,
+        'bigint',
+        'sizeOfHeapCommit should be bigint',
+      );
     });
 
     it('should have win32VersionValue property', async (t) => {
@@ -186,7 +261,11 @@ describe('PE.Binary', () => {
       const binary = LIEF.parse(fixture);
       const header = binary.optionalHeader;
 
-      assert.strictEqual(typeof header.win32VersionValue, 'number', 'win32VersionValue should be number');
+      assert.strictEqual(
+        typeof header.win32VersionValue,
+        'number',
+        'win32VersionValue should be number',
+      );
     });
   });
 
@@ -197,12 +276,12 @@ describe('PE.Binary', () => {
 
       const binary = LIEF.parse(fixture);
       const sections = binary.sections();
-      const sectionNames = sections.map(s => s.name);
+      const sectionNames = sections.map((s) => s.name);
 
       // PE binaries typically have .text section
       assert.ok(
-        sectionNames.some(name => name === '.text' || name === '.code'),
-        'Should have code section'
+        sectionNames.some((name) => name === '.text' || name === '.code'),
+        'Should have code section',
       );
     });
 
@@ -260,7 +339,11 @@ describe('PE.Binary', () => {
 
       const section = sections[0];
 
-      assert.strictEqual(typeof section.characteristics, 'number', 'characteristics should be number');
+      assert.strictEqual(
+        typeof section.characteristics,
+        'number',
+        'characteristics should be number',
+      );
     });
 
     it('should have standard section properties', async (t) => {
@@ -275,7 +358,11 @@ describe('PE.Binary', () => {
       const section = sections[0];
 
       assert.strictEqual(typeof section.name, 'string', 'name should be string');
-      assert.strictEqual(typeof section.virtualAddress, 'bigint', 'virtualAddress should be bigint');
+      assert.strictEqual(
+        typeof section.virtualAddress,
+        'bigint',
+        'virtualAddress should be bigint',
+      );
       assert.strictEqual(typeof section.fileOffset, 'bigint', 'fileOffset should be bigint');
     });
   });
@@ -343,7 +430,7 @@ describe('PE.Binary', () => {
 
       if (sections.length === 0) return t.skip('No sections in binary');
 
-      const section = sections.find(s => s.size > 0n);
+      const section = sections.find((s) => s.size > 0n);
       if (!section) return t.skip('No sections with content');
 
       const originalSize = section.size;
@@ -355,7 +442,11 @@ describe('PE.Binary', () => {
       }, 'Setting size should not throw');
 
       // Note: The actual value may be clamped by LIEF
-      assert.strictEqual(typeof section.size, 'bigint', 'size should still be bigint after setting');
+      assert.strictEqual(
+        typeof section.size,
+        'bigint',
+        'size should still be bigint after setting',
+      );
     });
 
     it('should allow setting virtualSize property', async (t) => {
@@ -367,7 +458,7 @@ describe('PE.Binary', () => {
 
       if (sections.length === 0) return t.skip('No sections in binary');
 
-      const section = sections.find(s => s.size > 0n);
+      const section = sections.find((s) => s.size > 0n);
       if (!section) return t.skip('No sections with content');
 
       const newVirtualSize = 0x3000n;
@@ -377,7 +468,11 @@ describe('PE.Binary', () => {
         section.virtualSize = newVirtualSize;
       }, 'Setting virtualSize should not throw');
 
-      assert.strictEqual(typeof section.virtualSize, 'bigint', 'virtualSize should still be bigint after setting');
+      assert.strictEqual(
+        typeof section.virtualSize,
+        'bigint',
+        'virtualSize should still be bigint after setting',
+      );
     });
 
     it('should allow setting content with Buffer', async (t) => {
@@ -389,7 +484,7 @@ describe('PE.Binary', () => {
 
       if (sections.length === 0) return t.skip('No sections in binary');
 
-      const section = sections.find(s => s.size > 0n);
+      const section = sections.find((s) => s.size > 0n);
       if (!section) return t.skip('No sections with content');
 
       const newContent = Buffer.from([0x90, 0x90, 0x90, 0x90]); // NOP sled
@@ -408,10 +503,10 @@ describe('PE.Binary', () => {
 
       if (sections.length === 0) return t.skip('No sections in binary');
 
-      const section = sections.find(s => s.size > 0n);
+      const section = sections.find((s) => s.size > 0n);
       if (!section) return t.skip('No sections with content');
 
-      const newContent = [0xCC, 0xCC, 0xCC, 0xCC]; // INT3 breakpoints
+      const newContent = [0xcc, 0xcc, 0xcc, 0xcc]; // INT3 breakpoints
 
       assert.doesNotThrow(() => {
         section.content = newContent;
@@ -443,7 +538,11 @@ describe('PE.Binary', () => {
       const header = binary.header;
 
       assert.ok(header, 'Should have header property');
-      assert.strictEqual(typeof header.architecture, 'number', 'header.architecture should be number');
+      assert.strictEqual(
+        typeof header.architecture,
+        'number',
+        'header.architecture should be number',
+      );
       assert.strictEqual(typeof header.entrypoint, 'bigint', 'header.entrypoint should be bigint');
       assert.strictEqual(typeof header.is_32, 'boolean', 'header.is_32 should be boolean');
       assert.strictEqual(typeof header.is_64, 'boolean', 'header.is_64 should be boolean');

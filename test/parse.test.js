@@ -124,7 +124,11 @@ describe('LIEF.parse()', () => {
       const binary = LIEF.parse(fixture);
 
       // MachO.Binary should have MachO-specific properties
-      assert.strictEqual(typeof binary.hasCodeSignature, 'boolean', 'Should have hasCodeSignature property');
+      assert.strictEqual(
+        typeof binary.hasCodeSignature,
+        'boolean',
+        'Should have hasCodeSignature property',
+      );
       assert.ok(binary.header, 'Should have header property');
     });
   });
@@ -172,9 +176,13 @@ describe('LIEF.MachO.parse()', () => {
 
     const fat = LIEF.MachO.parse(fixture);
 
-    assert.throws(() => {
-      fat.at(999);
-    }, /RangeError|out of range/i, 'Should throw for invalid index');
+    assert.throws(
+      () => {
+        fat.at(999);
+      },
+      /RangeError|out of range/i,
+      'Should throw for invalid index',
+    );
   });
 
   it('should take ownership of binary via take()', async (t) => {
@@ -199,9 +207,13 @@ describe('Abstract Binary interface', () => {
     const peFixtures = getPeFixtures();
     const machoFixtures = getMachoFixtures();
 
-    fixturePath = elfFixtures.x64 || elfFixtures.arm64 ||
-                  peFixtures.x64 || peFixtures.arm64 ||
-                  machoFixtures.x64 || machoFixtures.arm64;
+    fixturePath =
+      elfFixtures.x64 ||
+      elfFixtures.arm64 ||
+      peFixtures.x64 ||
+      peFixtures.arm64 ||
+      machoFixtures.x64 ||
+      machoFixtures.arm64;
 
     if (fixturePath) {
       binary = LIEF.parse(fixturePath);

@@ -128,7 +128,7 @@ describe('Abstract.Symbol', () => {
       if (symbols.length === 0) return t.skip('No symbols in binary');
 
       // Find a symbol with a name
-      const namedSymbol = symbols.find(s => s.name && s.name.length > 0);
+      const namedSymbol = symbols.find((s) => s.name && s.name.length > 0);
       if (!namedSymbol) return t.skip('No named symbols');
 
       const found = binary.getSymbol(namedSymbol.name);
@@ -158,7 +158,7 @@ describe('Abstract.Symbol', () => {
 
       if (symbols.length === 0) return t.skip('No symbols in binary');
 
-      const namedSymbol = symbols.find(s => s.name && s.name.length > 0);
+      const namedSymbol = symbols.find((s) => s.name && s.name.length > 0);
       if (!namedSymbol) return t.skip('No named symbols');
 
       const found = binary.getSymbol(namedSymbol.name);
@@ -210,12 +210,15 @@ describe('Abstract.Symbol', () => {
 
       // MachO.Binary doesn't expose getSymbol() directly
       // Symbols should be accessed via symbols() iteration
-      assert.strictEqual(typeof binary.getSymbol, 'undefined',
-        'MachO.Binary does not have getSymbol method - use symbols() instead');
+      assert.strictEqual(
+        typeof binary.getSymbol,
+        'undefined',
+        'MachO.Binary does not have getSymbol method - use symbols() instead',
+      );
 
       // Instead, verify we can get symbols and find _main by iteration
       const symbols = binary.symbols();
-      const mainSymbol = symbols.find(s => s.name === '_main' || s.name === 'main');
+      const mainSymbol = symbols.find((s) => s.name === '_main' || s.name === 'main');
       if (mainSymbol) {
         assert.ok(mainSymbol.name, 'Found main symbol should have name');
       }
@@ -250,7 +253,7 @@ describe('Abstract.Symbol', () => {
       const symbols = binary.symbols();
 
       // Filter symbols that start with underscore
-      const underscoreSymbols = symbols.filter(s => s.name.startsWith('_'));
+      const underscoreSymbols = symbols.filter((s) => s.name.startsWith('_'));
 
       assert.ok(Array.isArray(underscoreSymbols), 'Filter should return array');
     });
@@ -263,7 +266,7 @@ describe('Abstract.Symbol', () => {
       const binary = LIEF.parse(fixture);
       const symbols = binary.symbols();
 
-      const symbolNames = symbols.map(s => s.name);
+      const symbolNames = symbols.map((s) => s.name);
 
       assert.ok(Array.isArray(symbolNames), 'Map should return array');
       assert.strictEqual(symbolNames.length, symbols.length, 'Should have same length');
@@ -308,8 +311,11 @@ describe('Relocation API', () => {
 
       // MachO.Binary doesn't expose relocations() at the binary level
       // Relocations are accessed per-section in MachO
-      assert.strictEqual(typeof binary.relocations, 'undefined',
-        'MachO.Binary does not have relocations method');
+      assert.strictEqual(
+        typeof binary.relocations,
+        'undefined',
+        'MachO.Binary does not have relocations method',
+      );
     });
   });
 

@@ -84,7 +84,11 @@ describe('ELF.Binary', () => {
       assert.strictEqual(typeof section.name, 'string', 'name should be string');
       assert.strictEqual(typeof section.type, 'string', 'type should be string');
       assert.strictEqual(typeof section.flags, 'bigint', 'flags should be bigint');
-      assert.strictEqual(typeof section.virtualAddress, 'bigint', 'virtualAddress should be bigint');
+      assert.strictEqual(
+        typeof section.virtualAddress,
+        'bigint',
+        'virtualAddress should be bigint',
+      );
       assert.strictEqual(typeof section.fileOffset, 'bigint', 'fileOffset should be bigint');
       assert.strictEqual(typeof section.size, 'bigint', 'size should be bigint');
       assert.strictEqual(typeof section.alignment, 'bigint', 'alignment should be bigint');
@@ -97,7 +101,7 @@ describe('ELF.Binary', () => {
       if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
 
       const binary = LIEF.parse(fixture);
-      const section = binary.sections().find(s => s.name && s.type !== 'SHT_NULL_');
+      const section = binary.sections().find((s) => s.name && s.type !== 'SHT_NULL_');
 
       if (!section) return t.skip('No mutable section in binary');
 
@@ -122,11 +126,19 @@ describe('ELF.Binary', () => {
       section.flags = originalFlags;
 
       section.virtualAddress = originalVirtualAddress + 0x10n;
-      assert.strictEqual(section.virtualAddress, originalVirtualAddress + 0x10n, 'virtualAddress should update');
+      assert.strictEqual(
+        section.virtualAddress,
+        originalVirtualAddress + 0x10n,
+        'virtualAddress should update',
+      );
       section.virtualAddress = originalVirtualAddress;
 
       section.fileOffset = originalFileOffset + 0x10n;
-      assert.strictEqual(section.fileOffset, originalFileOffset + 0x10n, 'fileOffset should update');
+      assert.strictEqual(
+        section.fileOffset,
+        originalFileOffset + 0x10n,
+        'fileOffset should update',
+      );
       section.fileOffset = originalFileOffset;
 
       section.size = originalSize + 1n;
@@ -134,7 +146,11 @@ describe('ELF.Binary', () => {
       section.size = originalSize;
 
       section.alignment = originalAlignment === 0n ? 1n : originalAlignment;
-      assert.strictEqual(section.alignment, originalAlignment === 0n ? 1n : originalAlignment, 'alignment should update');
+      assert.strictEqual(
+        section.alignment,
+        originalAlignment === 0n ? 1n : originalAlignment,
+        'alignment should update',
+      );
       section.alignment = originalAlignment;
     });
 
@@ -143,7 +159,7 @@ describe('ELF.Binary', () => {
       if (skipIfNoFixture(fixture, 'any ELF')) return t.skip();
 
       const binary = LIEF.parse(fixture);
-      const section = binary.sections().find(s => s.type !== 'SHT_NULL_');
+      const section = binary.sections().find((s) => s.type !== 'SHT_NULL_');
 
       if (!section) return t.skip('No typed section in binary');
 
@@ -180,12 +196,12 @@ describe('ELF.Binary', () => {
 
       const binary = LIEF.parse(fixture);
       const sections = binary.sections();
-      const sectionNames = sections.map(s => s.name);
+      const sectionNames = sections.map((s) => s.name);
 
       // Most ELF binaries should have at least .text
       assert.ok(
-        sectionNames.some(name => name === '.text' || name === '.init' || name === '.plt'),
-        'Should have code sections'
+        sectionNames.some((name) => name === '.text' || name === '.init' || name === '.plt'),
+        'Should have code sections',
       );
     });
 
@@ -238,7 +254,7 @@ describe('ELF.Binary', () => {
       if (symbols.length === 0) return t.skip('No symbols in binary');
 
       // Find a symbol that has a name
-      const namedSymbol = symbols.find(s => s.name && s.name.length > 0);
+      const namedSymbol = symbols.find((s) => s.name && s.name.length > 0);
       if (!namedSymbol) return t.skip('No named symbols in binary');
 
       const found = binary.getSymbol(namedSymbol.name);
@@ -302,7 +318,7 @@ describe('ELF.Binary', () => {
 
       const binary = LIEF.parse(fixture);
       const segments = binary.segments();
-      const loadSegments = segments.filter(s => s.type === 'LOAD');
+      const loadSegments = segments.filter((s) => s.type === 'LOAD');
 
       assert.ok(loadSegments.length > 0, 'ELF executables should have at least one LOAD segment');
     });
@@ -320,11 +336,19 @@ describe('ELF.Binary', () => {
 
       assert.strictEqual(typeof segment.type, 'string', 'type should be string');
       assert.strictEqual(typeof segment.flags, 'number', 'flags should be number');
-      assert.strictEqual(typeof segment.virtualAddress, 'bigint', 'virtualAddress should be bigint');
+      assert.strictEqual(
+        typeof segment.virtualAddress,
+        'bigint',
+        'virtualAddress should be bigint',
+      );
       assert.strictEqual(typeof segment.virtualSize, 'bigint', 'virtualSize should be bigint');
       assert.strictEqual(typeof segment.fileOffset, 'bigint', 'fileOffset should be bigint');
       assert.strictEqual(typeof segment.fileSize, 'bigint', 'fileSize should be bigint');
-      assert.strictEqual(typeof segment.physicalAddress, 'bigint', 'physicalAddress should be bigint');
+      assert.strictEqual(
+        typeof segment.physicalAddress,
+        'bigint',
+        'physicalAddress should be bigint',
+      );
       assert.strictEqual(typeof segment.alignment, 'bigint', 'alignment should be bigint');
     });
 
@@ -334,7 +358,7 @@ describe('ELF.Binary', () => {
 
       const binary = LIEF.parse(fixture);
       const segments = binary.segments();
-      const loadSegment = segments.find(s => s.type === 'LOAD');
+      const loadSegment = segments.find((s) => s.type === 'LOAD');
 
       if (!loadSegment) return t.skip('No LOAD segment');
 
@@ -349,14 +373,17 @@ describe('ELF.Binary', () => {
 
       const binary = LIEF.parse(fixture);
       const segments = binary.segments();
-      const loadSegment = segments.find(s => s.type === 'LOAD');
+      const loadSegment = segments.find((s) => s.type === 'LOAD');
 
       if (!loadSegment) return t.skip('No LOAD segment');
 
       const sections = loadSegment.sections();
       assert.ok(Array.isArray(sections), 'sections() should return array');
       if (sections.length > 0) {
-        assert.ok(sections[0] instanceof LIEF.ELF.Section, 'segment sections should be ELF.Section instances');
+        assert.ok(
+          sections[0] instanceof LIEF.ELF.Section,
+          'segment sections should be ELF.Section instances',
+        );
       }
       // LOAD segments typically contain sections
     });
@@ -414,7 +441,11 @@ describe('ELF.Binary', () => {
       const originalType = loadSegment.type;
 
       loadSegment.type = LIEF.ELF.Segment.TYPE.NOTE;
-      assert.strictEqual(loadSegment.type, LIEF.ELF.Segment.TYPE.NOTE, 'type should be set to NOTE');
+      assert.strictEqual(
+        loadSegment.type,
+        LIEF.ELF.Segment.TYPE.NOTE,
+        'type should be set to NOTE',
+      );
 
       loadSegment.type = originalType;
       assert.strictEqual(loadSegment.type, originalType, 'type should be restored');
@@ -439,7 +470,11 @@ describe('ELF.Binary', () => {
         loadSegment.type = 12345;
       }, 'Setting type with a non-string should not throw');
 
-      assert.strictEqual(loadSegment.type, originalType, 'type should not change with invalid input');
+      assert.strictEqual(
+        loadSegment.type,
+        originalType,
+        'type should not change with invalid input',
+      );
     });
 
     it('should allow setting flags', async (t) => {
@@ -576,13 +611,13 @@ describe('ELF.Binary', () => {
 
       const originalContent = loadSegment.content;
       // Create array of same length as original content
-      const newContent = new Array(originalContent.length).fill(0xCC); // INT3
+      const newContent = new Array(originalContent.length).fill(0xcc); // INT3
 
       loadSegment.content = newContent;
       const updated = loadSegment.content;
       assert.ok(Buffer.isBuffer(updated), 'content should be a Buffer after setting');
-      assert.strictEqual(updated[0], 0xCC, 'first byte should be updated');
-      assert.strictEqual(updated[1], 0xCC, 'second byte should be updated');
+      assert.strictEqual(updated[0], 0xcc, 'first byte should be updated');
+      assert.strictEqual(updated[1], 0xcc, 'second byte should be updated');
     });
 
     it('should return empty Buffer for segment with no content', async (t) => {
@@ -593,7 +628,7 @@ describe('ELF.Binary', () => {
       const segments = binary.segments();
 
       // Find a segment with no file content (e.g. GNU_STACK typically has no content)
-      const emptySegment = segments.find(s => s.type === 'GNU_STACK');
+      const emptySegment = segments.find((s) => s.type === 'GNU_STACK');
 
       if (!emptySegment) return t.skip('No GNU_STACK segment');
 
@@ -610,9 +645,21 @@ describe('ELF.Binary', () => {
 
       const binary = LIEF.parse(fixture);
 
-      assert.strictEqual(typeof binary.lastOffsetSection(), 'bigint', 'lastOffsetSection() should return bigint');
-      assert.strictEqual(typeof binary.lastOffsetSegment(), 'bigint', 'lastOffsetSegment() should return bigint');
-      assert.strictEqual(typeof binary.nextVirtualAddress(), 'bigint', 'nextVirtualAddress() should return bigint');
+      assert.strictEqual(
+        typeof binary.lastOffsetSection(),
+        'bigint',
+        'lastOffsetSection() should return bigint',
+      );
+      assert.strictEqual(
+        typeof binary.lastOffsetSegment(),
+        'bigint',
+        'lastOffsetSegment() should return bigint',
+      );
+      assert.strictEqual(
+        typeof binary.nextVirtualAddress(),
+        'bigint',
+        'nextVirtualAddress() should return bigint',
+      );
       assert.strictEqual(typeof binary.pageSize(), 'bigint', 'pageSize() should return bigint');
     });
 
@@ -628,7 +675,7 @@ describe('ELF.Binary', () => {
       const extended = binary.extend(segment, 0n);
       assert.ok(
         extended === null || extended instanceof LIEF.ELF.Segment,
-        'extend() should return ELF.Segment or null'
+        'extend() should return ELF.Segment or null',
       );
     });
 
@@ -693,7 +740,11 @@ describe('ELF.Binary', () => {
       const header = binary.header;
 
       assert.ok(header, 'Should have header property');
-      assert.strictEqual(typeof header.architecture, 'number', 'header.architecture should be number');
+      assert.strictEqual(
+        typeof header.architecture,
+        'number',
+        'header.architecture should be number',
+      );
       assert.strictEqual(typeof header.entrypoint, 'bigint', 'header.entrypoint should be bigint');
       assert.strictEqual(typeof header.is_32, 'boolean', 'header.is_32 should be boolean');
       assert.strictEqual(typeof header.is_64, 'boolean', 'header.is_64 should be boolean');
@@ -710,7 +761,7 @@ describe('ELF.Binary', () => {
 
       if (sections.length === 0) return t.skip('No sections in binary');
 
-      const section = sections.find(s => s.size > 0n);
+      const section = sections.find((s) => s.size > 0n);
       if (!section) return t.skip('No sections with content');
 
       const newSize = 0x1000n;
@@ -721,7 +772,11 @@ describe('ELF.Binary', () => {
       }, 'Setting size should not throw');
 
       // Note: The actual value may be adjusted by LIEF
-      assert.strictEqual(typeof section.size, 'bigint', 'size should still be bigint after setting');
+      assert.strictEqual(
+        typeof section.size,
+        'bigint',
+        'size should still be bigint after setting',
+      );
     });
   });
 });

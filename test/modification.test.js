@@ -38,7 +38,7 @@ describe('Binary.patchAddress()', () => {
 
       // Find a valid address to patch (use entrypoint or section address)
       const sections = binary.sections();
-      const textSection = sections.find(s => s.name === '.text' && s.size > 0n);
+      const textSection = sections.find((s) => s.name === '.text' && s.size > 0n);
       if (!textSection) return t.skip('No .text section to patch');
 
       const patchAddress = textSection.virtualAddress;
@@ -56,7 +56,7 @@ describe('Binary.patchAddress()', () => {
       const binary = LIEF.parse(fixture);
 
       const sections = binary.sections();
-      const textSection = sections.find(s => s.name === '.text' && s.size > 0n);
+      const textSection = sections.find((s) => s.name === '.text' && s.size > 0n);
       if (!textSection) return t.skip('No .text section to patch');
 
       const patchAddress = textSection.virtualAddress;
@@ -74,11 +74,11 @@ describe('Binary.patchAddress()', () => {
       const binary = LIEF.parse(fixture);
 
       const sections = binary.sections();
-      const textSection = sections.find(s => s.name === '.text' && s.size > 0n);
+      const textSection = sections.find((s) => s.name === '.text' && s.size > 0n);
       if (!textSection) return t.skip('No .text section to patch');
 
       const patchAddress = textSection.virtualAddress; // Already BigInt
-      const patchData = [0xCC, 0xCC]; // INT3 breakpoints
+      const patchData = [0xcc, 0xcc]; // INT3 breakpoints
 
       assert.doesNotThrow(() => {
         binary.patchAddress(patchAddress, patchData);
@@ -92,7 +92,7 @@ describe('Binary.patchAddress()', () => {
       const binary = LIEF.parse(fixture);
 
       const sections = binary.sections();
-      const textSection = sections.find(s => s.name === '.text' && s.size > 0n);
+      const textSection = sections.find((s) => s.name === '.text' && s.size > 0n);
       if (!textSection) return t.skip('No .text section to patch');
 
       // Convert to number (if it fits)
@@ -115,7 +115,7 @@ describe('Binary.patchAddress()', () => {
       const binary = LIEF.parse(fixture);
 
       const sections = binary.sections();
-      const textSection = sections.find(s => s.name === '.text' && s.size > 0n);
+      const textSection = sections.find((s) => s.name === '.text' && s.size > 0n);
       if (!textSection) return t.skip('No .text section to patch');
 
       const patchAddress = textSection.virtualAddress;
@@ -138,8 +138,11 @@ describe('Binary.patchAddress()', () => {
 
       // MachO.Binary doesn't expose patchAddress() directly
       // Patching should be done through section content modification
-      assert.strictEqual(typeof binary.patchAddress, 'undefined',
-        'MachO.Binary does not have patchAddress method');
+      assert.strictEqual(
+        typeof binary.patchAddress,
+        'undefined',
+        'MachO.Binary does not have patchAddress method',
+      );
     });
   });
 });
@@ -185,7 +188,7 @@ describe('Binary.write()', () => {
 
       // Modify something
       const sections = binary.sections();
-      const section = sections.find(s => s.size > 0n);
+      const section = sections.find((s) => s.size > 0n);
       if (section) {
         const content = section.content;
         if (content.length > 0) {
@@ -300,9 +303,13 @@ describe('Binary.write()', () => {
       const peFixtures = getPeFixtures();
       const machoFixtures = getMachoFixtures();
 
-      const fixture = elfFixtures.x64 || elfFixtures.arm64 ||
-                      peFixtures.x64 || peFixtures.arm64 ||
-                      machoFixtures.x64 || machoFixtures.arm64;
+      const fixture =
+        elfFixtures.x64 ||
+        elfFixtures.arm64 ||
+        peFixtures.x64 ||
+        peFixtures.arm64 ||
+        machoFixtures.x64 ||
+        machoFixtures.arm64;
 
       if (skipIfNoFixture(fixture, 'any binary')) return t.skip();
 
@@ -343,7 +350,7 @@ describe('Roundtrip modifications', () => {
 
       const binary = LIEF.parse(fixture);
       const sections = binary.sections();
-      const section = sections.find(s => s.size > 4n && s.name.length > 0);
+      const section = sections.find((s) => s.size > 4n && s.name.length > 0);
 
       if (!section) return t.skip('No suitable section for test');
 
@@ -351,7 +358,7 @@ describe('Roundtrip modifications', () => {
       const originalContent = section.content;
       assert.ok(Buffer.isBuffer(originalContent), 'Content should be Buffer');
 
-      const testPattern = Buffer.from([0xDE, 0xAD, 0xBE, 0xEF]);
+      const testPattern = Buffer.from([0xde, 0xad, 0xbe, 0xef]);
       const modifiedContent = Buffer.concat([testPattern, originalContent.slice(4)]);
 
       // Setting content should not throw
@@ -387,7 +394,11 @@ describe('Roundtrip modifications', () => {
       // Verify it was set
       const overlay = binary.overlay;
       assert.ok(Buffer.isBuffer(overlay), 'Overlay should be Buffer');
-      assert.deepStrictEqual([...overlay], [...testOverlay], 'Overlay content should match before write');
+      assert.deepStrictEqual(
+        [...overlay],
+        [...testOverlay],
+        'Overlay content should match before write',
+      );
 
       // Note: overlay persistence through write may depend on LIEF version and binary type
       // We don't strictly test roundtrip here as it may not work for all binaries
@@ -426,7 +437,11 @@ describe('MachO-specific modifications', () => {
       // Re-parse and verify
       const reparsed = LIEF.parse(outputPath);
 
-      assert.strictEqual(reparsed.hasCodeSignature, false, 'Re-parsed binary should not have signature');
+      assert.strictEqual(
+        reparsed.hasCodeSignature,
+        false,
+        'Re-parsed binary should not have signature',
+      );
     });
   });
 

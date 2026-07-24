@@ -40,7 +40,6 @@ for cmd in clang llvm-profdata llvm-cov jq; do
   fi
 done
 
-BINARY="./build/Release/node_lief.node"
 COVERAGE_DIR="coverage"
 PROFDATA="$COVERAGE_DIR/coverage.profdata"
 
@@ -48,11 +47,14 @@ echo "=== Building with coverage instrumentation ==="
 rm -rf build "$COVERAGE_DIR"
 mkdir -p "$COVERAGE_DIR"
 
-CC=clang CXX=clang++ \
-  CFLAGS="-fprofile-instr-generate -fcoverage-mapping" \
-  CXXFLAGS="-fprofile-instr-generate -fcoverage-mapping" \
-  LDFLAGS="-fprofile-instr-generate" \
-  pnpm exec node-gyp rebuild
+CC=clang CXX=clang++ npm_config_coverage=1 pnpm prebuildify
+
+mapfile -t BINARIES < <(find prebuilds -type f -name '*.node')
+if [ "${#BINARIES[@]}" -ne 1 ]; then
+  echo "Error: expected exactly one .node file in prebuilds, found ${#BINARIES[@]}." >&2
+  exit 1
+fi
+BINARY="${BINARIES[0]}"
 
 echo ""
 echo "=== Running tests ==="

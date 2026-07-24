@@ -1,6 +1,7 @@
 {
   "variables": {
-    "openssl_fips": ""
+    "openssl_fips": "",
+    "coverage%": 0
   },
   "targets": [
     {
@@ -41,6 +42,11 @@
           ],
           "cflags_cc": [ "-std=c++20", "-fPIC", "-frtti" ]
         }],
+        ["OS!='win' and coverage==1", {
+          "cflags": [ "-fprofile-instr-generate", "-fcoverage-mapping" ],
+          "cflags_cc": [ "-fprofile-instr-generate", "-fcoverage-mapping" ],
+          "ldflags": [ "-fprofile-instr-generate" ]
+        }],
         ["OS=='mac'", {
           "libraries": [
             "<(module_root_dir)/lief-build/libLIEF.a"
@@ -62,6 +68,27 @@
               "ExceptionHandling": 1,
               "RuntimeTypeInfo": "true",
               "AdditionalOptions": [ "/std:c++20" ]
+            }
+          }
+        }],
+        ["OS=='win' and coverage==1", {
+          "configurations": {
+            "Debug": {
+              "msbuild_toolset": "ClangCL"
+            },
+            "Release": {
+              "msbuild_toolset": "ClangCL"
+            }
+          },
+          "msvs_settings": {
+            "VCCLCompilerTool": {
+              "AdditionalOptions": [
+                "-fprofile-instr-generate",
+                "-fcoverage-mapping"
+              ]
+            },
+            "VCLinkerTool": {
+              "AdditionalOptions": [ "-fprofile-instr-generate" ]
             }
           }
         }]
